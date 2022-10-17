@@ -1,2 +1,3 @@
-# bayesian_statitistics_assignments
+# Bayesian Statistics assigments
+
 Bayesian Statistics course assigments
