@@ -1,0 +1,36 @@
+---
+title: "Bayesian Statistics, Assignment 1"
+author: "Francesco Caporali"
+date: "November 2, 2022"
+output: pdf_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+```
+
+## Question 1
+
+### a.
+
+```{r}
+
+dgalenshore = function(y, a, theta) {
+	(2 / gamma(a)) * theta^(2 * a) * y^(2 * a - 1) * exp(-(theta^2) * y^2)
+}
+
+y = seq(0.01, 3.5, length = 1000)
+df = rbind(
+	data.frame(y = y, gal_y = dgalenshore(y, 2, 1), label = "(2, 1)"),
+	data.frame(y = y, gal_y = dgalenshore(y, 3, sqrt(2)), label = "(3, sqrt(2))"),
+	data.frame(y = y, gal_y = dgalenshore(y, 3, 2), label = "(3, 2)"),
+	data.frame(y = y, gal_y = dgalenshore(y, 5, 2), label = "(5, 2)"),
+	data.frame(y = y, gal_y = dgalenshore(y, 4, 3), label = "(4, 3)"),
+	data.frame(y = y, gal_y = dgalenshore(y, 4, 4), label = "(4, 4)")
+)
+
+ggplot(df, aes(y, gal_y, group = label, color = label)) +
+geom_line() + coord_fixed(ratio = 1)
+```
+
+### b.
