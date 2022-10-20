@@ -1,0 +1,26 @@
+% title
+    \makeatletter
+        \def\maketitle{%
+            \pagestyle{plain}
+            \begin{flushleft}
+                \textsc{\small{%
+                    \@author \\
+                    \@date
+                }}
+            \end{flushleft}
+            \begin{flushright}\vspace{-15mm}
+            \includegraphics[height = 1.5cm]{./files/cca.png}
+            \end{flushright}
+            \begin{center}\vspace{-5mm}
+                \scshape{\LARGE{\scshape{Bayesian Statistics}} \\
+                \normalsize \@title} \\
+                \rule{0.75\linewidth}{0.1mm}
+            \end{center}
+            }
+    \makeatother
+
+% sections
+    \usepackage{titlesec}
+    \titleformat*{\section}{\Large\scshape}
+    \titleformat*{\subsection}{\large\bfseries}
+    \titleformat*{\subsubsection}{\normalsize\bfseries}

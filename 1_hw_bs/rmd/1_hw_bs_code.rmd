@@ -1,36 +1,210 @@
 ---
-title: "Bayesian Statistics, Assignment 1"
-author: "Francesco Caporali"
-date: "November 2, 2022"
-output: pdf_document
+title: "Assignment 1"
+author: "Isabel Muzio, Francesco Caporali"
+date: '`r Sys.setlocale("LC_TIME", "English"); format(Sys.time(), "%d %B %Y")`'
+output:
+    pdf_document:
+        latex_engine: pdflatex
+        includes:
+            in_header: files/preamble.tex
+        extra_dependencies:
+            inputenc: ["utf8"]
+            fontenc: ["T1"]
+            dsfont: null
+            cancel: null
+    html_document: default        
+documentclass: article
+fontsize: 11pt
+geometry: margin=2cm
+header-includes:
+- \newcommand{\gal}[1]{\operatorname{Galenshore}\left(#1\right)}
+- \newcommand{\indicator}{\mathds{1}}
+- \newcommand{\mean}[1]{\mathbb{E}\left[#1\right]}
+- \newcommand{\var}[1]{\operatorname{Var}\left(#1\right)}
+- \newcommand{\cov}[2]{\operatorname{Cov}\left(#1,#2\right)}
+- \newcommand{\corr}[2]{\operatorname{Corr}\left(#1,#2\right)}
+- \renewcommand{\det}[1]{\operatorname{det}\left(#1\right)}
+- \newcommand{\real}{\mathbb{R}}
+- \newcommand{\prob}[1]{\mathbb{P}\left(#1\right)}
+- \newcommand{\deq}{\stackrel{\text{def}}{=}}
+- \newcommand{\convp}{\xrightarrow{\prob}}
+- \renewcommand{\epsilon}{\varepsilon}
+- \newcommand{\ssn}[2]{\operatorname{SS}\left(#1_{1:#2}\right)}
+- \renewcommand{\labelitemi}{\normalfont\bfseries\textendash}
 ---
 ```{r setup, include=FALSE}
+
 knitr::opts_chunk$set(echo = TRUE)
+
+colorize <- function(x, color) {
+    if (knitr::is_latex_output())
+        sprintf("\\textcolor{%s}{%s}", color, x)
+    else if (knitr::is_html_output())
+        sprintf('<span style = "color: %s;">%s</span>', color, x)
+    else x
+}
+indicator <- function() {
+    if (knitr::is_latex_output())
+        sprintf("\\indicator")
+    else if (knitr::is_html_output())
+        sprintf("1")
+    else "1"
+}
+newline <- function() {
+    if (knitr::is_latex_output())
+        sprintf("\\")
+    else if (knitr::is_html_output())
+        sprintf("<br>")
+    else ""
+}
+
 library(ggplot2)
 ```
 
-## Question 1
+# Question 1: The Galenshore distribution
 
-### a.
+## Point a.
 
+$Y | \theta \sim \gal{a, \theta}$ is such that $p(y|\theta)$ is a density in the exponential family indeed
+    $$p(y | \theta) = \frac{2}{\Gamma(a)}\theta^{2a}y^{2a - 1}e^{-\theta^2y^2}`r indicator()`_{\left\{y > 0\right\}}, \theta > 0, a > 0.$$
+Then definining $\phi \deq \theta^2$ one has
+    $$p(y | \phi) = h(y)c(\phi)e^{\phi t(y)} \text{ with } h(y) =  \frac{2 y^{2a - 1}}{\Gamma(a)}`r indicator()`_{\left\{y > 0\right\}}, c(\phi) = \phi^a, t(y) = -y^2,$$
+hence, by the easy shape of a distribution in the exponential family, we can state that a class of conjugate priors for $p(y | \phi)$ is such that
+    $$p(\phi) \propto c(\phi)^{n_0}e^{\phi n_0t_0} = \phi^{a n_0}e^{\phi n_0t_0}.$$
+If $\phi$ has density $p(\phi)$ and we want to obtain the density of $\theta = \sqrt{\phi}$ it is sufficient to define the map $f: \real^+ \to \real^+$ such that $f(x) = \sqrt{x}$ and recall that
+    $$p_{\theta}(\theta) = p_{\phi}(f(\phi)) = p_{\phi}(f^{-1}(\theta) \left|\frac{d f^{-1}(\theta)}{d \theta}\right|.$$
+Observing that $\left|\frac{d f^{-1}(\theta)}{d \theta}\right| = \left|\frac{d \theta^2}{d \theta}\right| = 2\theta$ 
+    $$p(\theta) \deq p_{\theta}(\theta) = p_{\phi}(\theta^2) 2 \theta \propto \theta^{2an_0} e^{\theta^2 n_0 t_0} 2 \theta.$$
+
+### Remark
+
+Observing the three parameters $a, n_0$ and $t_0$ we can say
+
+- $a > 0$ by hypotesis;
+- $n_0 > 0$ because it represents the \textit{prior sample size} ($p(\theta)$ has the same kernel of $p(y | \theta)$ after $n_0$ observations);
+- $t_0 < 0$ because it is the \textit{prior guess} that we make for $t$, with $t(y) = -\frac{y^2}{2}, \forall y \in \real^+: t_0 = \frac{\sum_{i = 1}^{n} t(y_i)}{n} = -\frac{\sum_{i = 1}^{n} y_i^2}{n} < 0$.
+
+Hence we have
+    $$an_0 + 1 > 0 \text{ and } -n_0t_0 > 0.$$
+
+\vspace{0.5cm}
+
+So we can rewrite 
+    $$p(\theta) \propto 2 \theta^{2an_0 + 1} e^{- \left(\sqrt{-n_0t_0}\right)^2 \theta^2}$$
+and recognizing the kernel of a Galenshore distribution we can write explicitly
+\begin{align*}
+    p(\theta) & = 2 \theta^{2(an_0 + 1) - 1} e^{- \left(\sqrt{-n_0t_0}\right)^2 \theta^2} \cdot \underbrace{\frac{\left(\sqrt{-n_0t_0}\right)^{2(an_0 + 1)}}{\Gamma(an_0 + 1)}}_{\text{it does not depends on $\theta$}} \underbrace{`r indicator()`_{\theta > 0}}_{\text{by hypotesis}} = \\
+    & = \frac{2}{\Gamma(an_0 + 1)} \left(\sqrt{-n_0t_0}\right)^{2(an_0 + 1)} \theta^{2(an_0 + 1) - 1} e^{- \left(\sqrt{-n_0t_0}\right)^2 \theta^2} `r indicator()`_{\theta > 0}
+\end{align*}
+    $$\Downarrow$$
+    $$\theta \sim \gal{an_0 + 1, \sqrt{-n_0t_0}}.$$
+
+Finally we plot a few of these densities $\gal{an_0 + 1, \sqrt{-n_0t_0}}$ sampled with the following code:
+
+- $n_0 = 1, t_0 = -1, a = 1 \implies \gal{2, 1}$;
+- $n_0 = 2, t_0 = -1, a = 1 \implies \gal{3, \sqrt{2}}$;
+- $n_0 = 2, t_0 = -2, a = 1 \implies \gal{3, 2}$;
+- $n_0 = 2, t_0 = -2, a = 2 \implies \gal{5, 2}$;
+- $n_0 = 3, t_0 = -3, a = 1 \implies \gal{4, 3}$;
+- $n_0 = 3, t_0 = -4, a = 1 \implies \gal{4, 4}$.
+
+\vspace{0.5cm}
+
+\scriptsize
 ```{r}
 
 dgalenshore = function(y, a, theta) {
-	(2 / gamma(a)) * theta^(2 * a) * y^(2 * a - 1) * exp(-(theta^2) * y^2)
+    (2 / gamma(a)) * theta^(2 * a) * y^(2 * a - 1) * exp(-(theta^2) * y^2)
 }
 
 y = seq(0.01, 3.5, length = 1000)
 df = rbind(
-	data.frame(y = y, gal_y = dgalenshore(y, 2, 1), label = "(2, 1)"),
-	data.frame(y = y, gal_y = dgalenshore(y, 3, sqrt(2)), label = "(3, sqrt(2))"),
-	data.frame(y = y, gal_y = dgalenshore(y, 3, 2), label = "(3, 2)"),
-	data.frame(y = y, gal_y = dgalenshore(y, 5, 2), label = "(5, 2)"),
-	data.frame(y = y, gal_y = dgalenshore(y, 4, 3), label = "(4, 3)"),
-	data.frame(y = y, gal_y = dgalenshore(y, 4, 4), label = "(4, 4)")
+    data.frame(y = y, gal_y = dgalenshore(y, 2, 1), label = "(2, 1)"),
+    data.frame(y = y, gal_y = dgalenshore(y, 3, sqrt(2)), label = "(3, sqrt(2))"),
+    data.frame(y = y, gal_y = dgalenshore(y, 3, 2), label = "(3, 2)"),
+    data.frame(y = y, gal_y = dgalenshore(y, 5, 2), label = "(5, 2)"),
+    data.frame(y = y, gal_y = dgalenshore(y, 4, 3), label = "(4, 3)"),
+    data.frame(y = y, gal_y = dgalenshore(y, 4, 4), label = "(4, 4)")
 )
+```
+\normalsize
 
+Then we plot all of them at the same time:
+
+\vspace{0.5cm}
+
+\scriptsize
+```{r, fig.align = "center", out.width = "60%"}
 ggplot(df, aes(y, gal_y, group = label, color = label)) +
 geom_line() + coord_fixed(ratio = 1)
 ```
+\normalsize
 
-### b.
+## Point b.
+
+Let's define $b \deq an_0 + 1$ and $c = \sqrt{-n_0t_0}$ for coinciseness. `r newline()`
+Recalling $\theta \sim \gal{b, c}$ and $Y_i | \theta \sim \gal{a, \theta}, \forall i \in 1:n$ and defining $\ssn{y}{n} \deq \sum_{i = 1}^n y_i^2$ we have
+\begin{align*}
+    p(\theta | y_{1:n}) & = p(\theta) p(y_{1:n} | \theta) \propto \\
+    & \propto (\theta^{2b - 1} e^{-c^2\theta^2}) (\theta^{2na} e^{-\theta^2\sum_{i = 1}^n y_i^2}) \propto \\
+    & \propto \theta^{2(an + b) - 1} e^{-(c^2 + \ssn{y}{n})\theta^2}.
+\end{align*}
+Hence we recognize the kernel of a $\gal{an + b, \sqrt{c^2 + \ssn{y}{n}}}$
+    $$\implies \theta | Y_{1:n} \sim \gal{a(n + n_0) + 1, \sqrt{\ssn{y}{n} - n_0t_0}}.$$
+
+
+## Point c.
+
+\begin{align*}
+    \frac{p(\theta_a | y_{1:n})}{p(\theta_b | y_{1:n})} & = \frac{2 \Gamma(a(n + n_0) + 1)}{\Gamma(a(n + n_0) + 1) 2}  \left(\ssn{y}{n} - n_0t_0\right)^{(a(n + n_0) + 1)(1 - 1)} \left(\frac{\theta_a}{\theta_b}\right)^{2 a(n + n_0) + 1} e^{-\left(\ssn{y}{n} - n_0t_0\right)\left(\theta_a^2 - \theta_b^2\right)} = \\
+    & = \left(\frac{\theta_a}{\theta_b}\right)^{2 a(n + n_0) + 1} e^{-\left(\sum_{i = 1}^n y_i^2 - n_0t_0\right)\left(\theta_a^2 - \theta_b^2\right)}.
+\end{align*}
+Hence 
+    $$\prob{\theta \in A | Y_{1:n} = y_{1:n}} = \prob{\theta \in A | \sum_{i = 1}^n Y_i^2 = \sum_{i = 1}^n y_i^2}, \forall A$$
+and then, by definition $\ssn{Y}{n} \deq \sum_{i = 1}^n Y_i^2$ is a sufficient statistic.
+
+## Point d.
+
+Recalling that $\theta | Y_{1:n} \sim \gal{a(n + n_0) + 1, \sqrt{\ssn{y}{n} - n_0t_0}}$ and that if $X \sim \gal{a, \theta} \implies \mean{X} = \frac{\Gamma\left(a + \frac{1}{2}\right)}{\theta \Gamma(a)}$ we have
+    $$\mean{\theta|y_{1:n}} = \frac{\Gamma\left(a(n + n_0) + frac{3}{2}\right)}{\left(\sqrt{\ssn{y}{n} - n_0t_0}\right) \Gamma(a(n + n_0) + 1)}$$
+
+## Point e.
+
+With the usual notation $b \deq an_0 + 1$ and $c = \sqrt{-n_0t_0}$: 
+\begin{align*}
+    p(y_{n + 1} | y_{1:n}) & = \int_0^{\infty} p(y_{n + 1} | \theta) p(\theta | y_{1:n}) d\theta = \\
+    & = \int_0^{\infty} \frac{2}{\Gamma(a)} \theta^{2a}y_{n + 1}^{2a - 1} e^{-\theta^2y_{n + 1}^2} \cdot \frac{2}{\Gamma(an + b)} \left(c^2 + \ssn{y}{n}\right)^{an + b} \theta^{2(an + b) - 1} e^{-(c^2 + \ssn{y}{n})\theta^2} d\theta =  \\
+    & = \frac{4}{\Gamma(a)\Gamma(an + b)} y_{n + 1}^{2a - 1} \left(c^2 + \ssn{y}{n}\right)^{an + b} \int_0^{\infty} \underbrace{\theta^{2(a + an + b) - 1} e^{-(c^2 + \ssn{y}{n} + y_{n + 1}^2)\theta^2}}_{\text{kernel of a } \gal{a + an + b, \sqrt{c^2 + \ssn{y}{n} + y_{n + 1}^2}}} d\theta \\
+\end{align*}
+$$\Downarrow$$
+$$
+    \int_0^{\infty} \theta^{2(a + an + b) - 1} e^{-(c^2 + \ssn{y}{n} + y_{n + 1}^2)\theta^2} = \frac{\Gamma(a + an + b)}{2} \left(\frac{1}{c^2 + \ssn{y}{n} + y_{n + 1}^2}\right)^{a + an + b}
+$$
+$$\Downarrow$$
+\begin{align*}
+    p(y_{n + 1} | y_{1:n}) & =  \frac{4}{\Gamma(a)\Gamma(an + b)} y_{n + 1}^{2a - 1} \left(c^2 + \ssn{y}{n}\right)^{an + b} \frac{\Gamma(a + an + b)}{2} \left(\frac{1}{c^2 + \ssn{y}{n} + y_{n + 1}^2}\right)^{a + an + b} = \\
+    & = \frac{2}{y_{n + 1}} \frac{\Gamma(a + an + b)}{\Gamma(a)\Gamma(an + b)} \left(\frac{y_{n + 1}^2}{c^2 + \ssn{y}{n} + y_{n + 1}^2}\right)^{a} \left(\frac{c^2 + \ssn{y}{n}}{c^2 + \ssn{y}{n} + y_{n + 1}^2}\right)^{an + b} = \\
+    & = \frac{2 y_{n + 1} \left(c^2 + \ssn{y}{n}\right)}{\left(c^2 + \ssn{y}{n} + y_{n + 1}^2\right)^2} \cdot \\
+    & \quad \cdot \underbrace{\frac{1}{B(a, an + b)} \left(\frac{y_{n + 1}^2}{c^2 + \ssn{y}{n} + y_{n + 1}^2}\right)^{a - 1} \left(1 - \frac{y_{n + 1}^2}{c^2 + \ssn{y}{n} + y_{n + 1}^2}\right)^{(an + b) - 1}}_{\text{density of } X \sim B(a, an + b) \text{ evaluated on } \frac{y_{n + 1}^2}{c^2 + \ssn{y}{n} + y_{n + 1}^2}} = \\
+    & = \frac{2 y_{n + 1} \left(c^2 + \ssn{y}{n}\right)}{\left(c^2 + \ssn{y}{n} + y_{n + 1}^2\right)^2} p_X(\frac{y_{n + 1}^2}{c^2 + \ssn{y}{n} + y_{n + 1}^2}).
+\end{align*}
+Now one should note that this is a differentiable transformation of $\real^+$ of an unknown random variable. Indeed if one try to derive, with respect to $y_{n + 1}$, the variable of the density of $X$ in our last expression obtains
+\begin{align*}
+    \frac{d}{d y_{n + 1}} \frac{y_{n + 1}^2}{c^2 + \ssn{y}{n} + y_{n + 1}^2} & = \frac{2y_{n + 1}(c^2 + \ssn{y}{n} + y_{n + 1}^2) - y_{n + 1}^2 2 y_{n + 1}}{\left(c^2 + \ssn{y}{n} + y_{n + 1}^2\right)^2} = \\
+    & = \underbrace{\frac{2y_{n + 1}(c^2 + \ssn{y}{n})}{\left(c^2 + \ssn{y}{n} + y_{n + 1}^2\right)^2}}_{> 0 \text{ indeed $y_{n + 1} \in \real^+$ and the other terms are squared}}.
+\end{align*}
+Hence if we define $f^{-1}: \real^+ \to \real^+$ such that $\displaystyle f^{-1}(x) = \frac{x^2}{c^2 + \ssn{y}{n} + x^2}$ we can state
+\begin{align*}
+    p(y_{n + 1} | y_{1:n}) & = \left|\frac{d}{d y_{n + 1}} f^{-1}(y_{n + 1}) \right| p_X(f^{-1}(y_{n + 1}) = \\
+    & = p_{f(X)}(y_{n + 1}).
+\end{align*}
+Let's compute $f$ explicitly
+    $$f^{-1}(x) = \frac{x^2}{c^2 + \ssn{y}{n} + x^2} = 1 - \frac{c^2 + \ssn{y}{n}}{c^2 + \ssn{y}{n} + x^2}$$
+hence
+\begin{align*}
+    x = 1 - \frac{c^2 + \ssn{y}{n}}{c^2 + \ssn{y}{n} + f(x)^2} & \iff 1 - x = \frac{c^2 + \ssn{y}{n}}{c^2 + \ssn{y}{n} + f(x)^2} \iff \\
+    & \iff \frac{f(x)^2}{c^2 + \ssn{y}{n}} + 1 = \frac{1}{1 - x} \iff \\
+    & \iff f(x) = \sqrt{\frac{x}{1 - x}} \sqrt{c^2 + \ssn{y}{n}}.
+\end{align*}
+This leads us to conclude that 
+   $$Y_{n + 1} | Y_{1:n} \sim f\left(B(a, an + b)\right), \text{ with } f: \real^+ \to \real^+, f(x) = \sqrt{\frac{x}{1 - x}} \sqrt{c^2 + \ssn{y}{n}}.$$
