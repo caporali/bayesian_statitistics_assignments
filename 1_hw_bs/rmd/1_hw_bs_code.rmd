@@ -170,7 +170,7 @@ Recalling that $\theta | Y_{1:n} \sim \gal{a(n + n_0) + 1, \sqrt{\ssn{y}{n} - n_
 
 ## Point e.
 
-With the usual notation $b \deq an_0 + 1$ and $c = \sqrt{-n_0t_0}$: 
+With the usual notation $b \deq an_0 + 1$ and $c \deq \sqrt{-n_0t_0}$: 
 \begin{align*}
     p(y_{n + 1} | y_{1:n}) & = \int_0^{\infty} p(y_{n + 1} | \theta) p(\theta | y_{1:n}) d\theta = \\
     & = \int_0^{\infty} \frac{2}{\Gamma(a)} \theta^{2a}y_{n + 1}^{2a - 1} e^{-\theta^2y_{n + 1}^2} \cdot \frac{2}{\Gamma(an + b)} \left(c^2 + \ssn{y}{n}\right)^{an + b} \theta^{2(an + b) - 1} e^{-(c^2 + \ssn{y}{n})\theta^2} d\theta =  \\
@@ -206,5 +206,5 @@ hence
     & \iff \frac{f(x)^2}{c^2 + \ssn{y}{n}} + 1 = \frac{1}{1 - x} \iff \\
     & \iff f(x) = \sqrt{\frac{x}{1 - x}} \sqrt{c^2 + \ssn{y}{n}}.
 \end{align*}
-This leads us to conclude that 
-   $$Y_{n + 1} | Y_{1:n} \sim f\left(B(a, an + b)\right), \text{ with } f: \real^+ \to \real^+, f(x) = \sqrt{\frac{x}{1 - x}} \sqrt{c^2 + \ssn{y}{n}}.$$
+This leads us to conclude (substituting again $b = an_0 + 1$ and $c = \sqrt{-n_0t_0}$) that 
+   $$Y_{n + 1} | Y_{1:n} \sim f\left(B(a, a(n + n_0) + 1)\right), \text{ with } f: \real^+ \to \real^+, f(x) = \sqrt{\frac{x}{1 - x}} \sqrt{\ssn{y}{n} - n_0t_0}.$$
