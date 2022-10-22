@@ -48,7 +48,7 @@ indicator <- function() {
         sprintf("\\indicator")
     else if (knitr::is_html_output())
         sprintf("1")
-    else "1"
+    else sprintf("1")
 }
 newline <- function() {
     if (knitr::is_latex_output())
@@ -56,6 +56,13 @@ newline <- function() {
     else if (knitr::is_html_output())
         sprintf("<br>")
     else ""
+}
+textit <- function(arg) {
+    if (knitr::is_latex_output())
+        sprintf("\\textit{%s}", arg)
+    else if (knitr::is_html_output())
+        sprintf("%s", arg)
+    else sprintf("%s", arg)
 }
 
 library(ggplot2)
@@ -81,14 +88,12 @@ Observing that $\left|\frac{d f^{-1}(\theta)}{d \theta}\right| = \left|\frac{d \
 Observing the three parameters $a, n_0$ and $t_0$ we can say
 
 - $a > 0$ by hypotesis;
-- $n_0 > 0$ because it represents the \textit{prior sample size} ($p(\theta)$ has the same kernel of $p(y | \theta)$ after $n_0$ observations);
-- $t_0 < 0$ because it is the \textit{prior guess} that we make for $t$, with $t(y) = -\frac{y^2}{2}, \forall y \in \real^+: t_0 = \frac{\sum_{i = 1}^{n} t(y_i)}{n} = -\frac{\sum_{i = 1}^{n} y_i^2}{n} < 0$.
+- $n_0 > 0$ because it represents the `r textit("prior sample size")` ($p(\theta)$ has the same kernel of $p(y | \theta)$ after $n_0$ observations);
+- $t_0 < 0$ because it is the `r textit("prior guess")` that we make for $t$, with $t(y) = -\frac{y^2}{2}, \forall y \in \real^+: t_0 = \frac{\sum_{i = 1}^{n} t(y_i)}{n} = -\frac{\sum_{i = 1}^{n} y_i^2}{n} < 0$.
 
 Hence we have
     $$an_0 + 1 > 0 \text{ and } -n_0t_0 > 0.$$
-
 \vspace{0.5cm}
-
 So we can rewrite 
     $$p(\theta) \propto 2 \theta^{2an_0 + 1} e^{- \left(\sqrt{-n_0t_0}\right)^2 \theta^2}$$
 and recognizing the kernel of a Galenshore distribution we can write explicitly
@@ -98,7 +103,6 @@ and recognizing the kernel of a Galenshore distribution we can write explicitly
 \end{align*}
     $$\Downarrow$$
     $$\theta \sim \gal{an_0 + 1, \sqrt{-n_0t_0}}.$$
-
 Finally we plot a few of these densities $\gal{an_0 + 1, \sqrt{-n_0t_0}}$ sampled with the following code:
 
 - $n_0 = 1, t_0 = -1, a = 1 \implies \gal{2, 1}$;
@@ -130,7 +134,6 @@ df = rbind(
 \normalsize
 
 Then we plot all of them at the same time:
-
 \vspace{0.5cm}
 
 \scriptsize
@@ -151,7 +154,6 @@ Recalling $\theta \sim \gal{b, c}$ and $Y_i | \theta \sim \gal{a, \theta}, \fora
 \end{align*}
 Hence we recognize the kernel of a $\gal{an + b, \sqrt{c^2 + \ssn{y}{n}}}$
     $$\implies \theta | Y_{1:n} \sim \gal{a(n + n_0) + 1, \sqrt{\ssn{y}{n} - n_0t_0}}.$$
-
 
 ## Point c.
 
@@ -208,9 +210,8 @@ hence
 \end{align*}
 This leads us to conclude (substituting again $b = an_0 + 1$ and $c = \sqrt{-n_0t_0}$) that 
    $$Y_{n + 1} | Y_{1:n} \sim f\left(B(a, a(n + n_0) + 1)\right), \text{ with } f: \real^+ \to \real^+, f(x) = \sqrt{\frac{x}{1 - x}} \sqrt{\ssn{y}{n} - n_0t_0}.$$
-   
-   
-   
+
+
 # Question 2: Tumor Counts
 
 ## Part 1: Tumor Counts
@@ -220,6 +221,7 @@ theta_B = Gamma(12, 1)
 
 ### Point a.
 
+\scriptsize
 ```{r x2a}
 load(file = 'dataAssignment1.RData')
 library(tidyverse)
@@ -258,7 +260,8 @@ post.values.a = dgamma(gamma.values, a_n, b_n)
 post.values.b = dgamma(gamma.values, c_n, d_n)
 
 post.data = data.frame(gamma.values, post.values.a, post.values.b)
-
+```
+```{r, fig.align = "center", out.width = "75%"}
 #posterior density plots
 
 post.data %>% ggplot()+
@@ -290,14 +293,16 @@ p2 <- p2 +
   ggtitle(expression(paste("Posterior probability density of ", theta[B])))
 
 grid.arrange(arrangeGrob(p1, p2, ncol = 2), p3, nrow = 2)
-
+```
+```{r, fig.align = "center", out.width = "75%"}
 #quantile-based intervals plots
 
 post.data %>% ggplot()+
   geom_line(aes(x = gamma.values, y = post.values.a), col="darkgreen", alpha = 0.6, size=1.2)+
   geom_vline(xintercept = quant.interval.a[1], col = "darkgreen")+
   geom_vline(xintercept = quant.interval.a[2], col = "darkgreen")+
-  geom_rect(aes(xmin = quant.interval.a[1], xmax = quant.interval.a[2], ymin = -Inf, ymax = Inf), fill = "green", alpha = 0.002)+
+  geom_rect(aes(xmin = quant.interval.a[1], xmax = quant.interval.a[2], ymin = -Inf, ymax = Inf),
+    fill = "green", alpha = 0.002)+
   xlab(expression(theta)) +
   ylab(expression(paste("p(",theta[A],"|",y[A],")")))+
   ggtitle(expression(paste("Quantile-based 95% - interval of ", theta[A])))+
@@ -307,7 +312,8 @@ post.data %>% ggplot()+
   geom_line(aes(x = gamma.values, y = post.values.b), col = "darkorange", alpha = 0.6, size = 1.2)+ 
   geom_vline(xintercept = quant.interval.b[1], col = "darkorange")+
   geom_vline(xintercept = quant.interval.b[2], col = "darkorange")+
-  geom_rect(aes(xmin = quant.interval.b[1], xmax = quant.interval.b[2], ymin = -Inf, ymax = Inf), fill = "orange", alpha = 0.002)+
+  geom_rect(aes(xmin = quant.interval.b[1], xmax = quant.interval.b[2], ymin = -Inf, ymax = Inf), 
+    fill = "orange", alpha = 0.002)+
   xlab(expression(theta)) +
   ylab(expression(paste("p(",theta[B],"|",y[B],")")))+
   ggtitle(expression(paste("Quantile-based 95% - interval of ", theta[B])))+
@@ -315,12 +321,12 @@ post.data %>% ggplot()+
 
 
 grid.arrange(q1, q2, nrow = 2)
-
-
 ```
+\normalsize
 
 ### Point b.
 
+\scriptsize
 ```{r x2b}
 
 mean.b = rep(0, 50)
@@ -334,6 +340,8 @@ for (i in n_0){
 }
 
 mean_varying <- data.frame(n_0, mean.b)
+```
+```{r, fig.align = "center", out.width = "60%"}
 mean_varying %>% ggplot(aes(x = n_0, y = mean.b))+
   geom_line(col = "green4")+
   xlab(expression(n[0]))+
@@ -343,20 +351,15 @@ mean_varying %>% ggplot(aes(x = n_0, y = mean.b))+
   scale_color_discrete(guide = "none")+
   geom_text(aes(50, mean_A, label = mean_A, vjust = +1.5, col = "red"))+
   geom_text(aes(50, mean.b[50], label = "mean", vjust = +1.5))
-
-
-
 ```
-
-
+\normalsize
 
 ### Point c.
 
-
 ### Part 2: Tumor Counts Comparison
 
-
 ### Point d.
+\scriptsize
 ```{r x2d}
 S = 10000
 
@@ -368,10 +371,11 @@ mc1 = sum(sample.a > sample.b) / S
 
 sprintf("The Monte Carlo estimate given the original prior of theta[B] is: %f", mc1)
 ```
-
+\normalsize
 
 ### Point e.
 
+\scriptsize
 ```{r x2e}
 #Monte Carlo estimate with varying p(theta[B])
 
@@ -385,8 +389,8 @@ for (i in n_0){
 }
 
 mc1_varying <- data.frame(n_0, mc2)
-
-
+```
+```{r, fig.align = "center", out.width = "60%"}
 mc1_varying %>% ggplot(aes(x = n_0, y = mc2))+
   geom_line(col = "blue")+
   xlab(expression(n[0]))+
@@ -395,13 +399,12 @@ mc1_varying %>% ggplot(aes(x = n_0, y = mc2))+
   geom_hline(yintercept = mc1, col = "red")+
   scale_color_discrete(guide = "none")+
   geom_text(aes(50, mc1, label = mc1, vjust = +1.5, col = "red"))
-
-
 ```
-
+\normalsize
 
 ### Point f.
 
+\scriptsize
 ```{r x2f}
 
 
@@ -434,7 +437,8 @@ for (i in 1:50){
 }
 
 mc3_varying <- data.frame(n_0, mc4)
-
+```
+```{r, fig.align = "center", out.width = "60%"}
 mc3_varying %>% ggplot(aes(x = n_0, y = mc4))+
   geom_line(col = "darkgreen")+
   xlab(expression(n[0]))+
@@ -443,14 +447,14 @@ mc3_varying %>% ggplot(aes(x = n_0, y = mc4))+
   geom_hline(yintercept = mc3, col = "darkorange")+
   scale_color_discrete(guide = "none")+
   geom_text(aes(50, mc3, label = mc3, vjust = +1.5, col = "orange"))
-
-
 ```
-
+\normalsize
 
 ### Part 3: Posterior predictive checks
 
 ### Point g.
+
+\scriptsize
 ```{r x2g}
 
 #generating the samples case theta[A]
@@ -468,16 +472,20 @@ t2 =  sum(y.a) / (10*sd(y.a))
 t.a <- data.frame(1:K, t1)
 
 colors <- c("data mean" = "blue", "sample mean" = "red")
-
+```
+```{r, fig.align = "center", out.width = "60%"}
 t.a %>% ggplot()+
   geom_histogram(aes(t1), bins = 50, fill = "darkorchid", alpha = 0.6, col = "grey")+
   geom_vline(aes(xintercept = t2, col = "sample mean"), size = 1.2) +
   geom_vline(aes( xintercept = mean(t1), col = "data mean"), size = 1.2)+
-  scale_color_manual(name = "Legend", values = c( "sample mean" = "blue", "data mean" = "red"),labels = c("sample mean", "data mean"))
+  scale_color_manual(name = "Legend", values = c( "sample mean" = "blue", "data mean" = "red"),
+    labels = c("sample mean", "data mean"))
 ```
+\normalsize
 
-###Point h.
+### Point h.
 
+\scriptsize
 ```{r x2h}
 
 #generating the samples case theta[B]
@@ -493,11 +501,13 @@ for (i in 1:K){
 t4 =  sum(y.a) / (10*sd(y.a))
 
 t.b <- data.frame(1:K, t3)
-
+```
+```{r, fig.align = "center", out.width = "60%"}
 t.b %>% ggplot()+
   geom_histogram(aes(t3), bins = 50, fill = "darkorchid", alpha = 0.6, col = "grey")+
   geom_vline(aes(xintercept = t4, col = "sample mean"), size = 1.2) +
   geom_vline(aes( xintercept = mean(t3), col = "data mean"), size = 1.2)+
-  scale_color_manual(name = "Legend", values = c( "sample mean" = "blue", "data mean" = "red"),labels = c("sample mean", "data mean"))
-
+  scale_color_manual(name = "Legend", values = c( "sample mean" = "blue", "data mean" = "red"),
+    labels = c("sample mean", "data mean"))
 ```
+\normalsize
