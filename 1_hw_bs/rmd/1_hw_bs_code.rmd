@@ -1,8 +1,9 @@
 ---
 title: "Assignment 1"
-author: "Isabel Muzio, Francesco Caporali"
+author: "Francesco Caporali, Isabel Muzio"
 date: '`r Sys.setlocale("LC_TIME", "English"); format(Sys.time(), "%d %B %Y")`'
 output:
+    html_document: default        
     pdf_document:
         latex_engine: pdflatex
         includes:
@@ -12,7 +13,6 @@ output:
             fontenc: ["T1"]
             dsfont: null
             cancel: null
-    html_document: default        
 documentclass: article
 fontsize: 11pt
 geometry: margin=2cm
@@ -29,8 +29,8 @@ header-includes:
 - \newcommand{\deq}{\stackrel{\text{def}}{=}}
 - \newcommand{\convp}{\xrightarrow{\prob}}
 - \renewcommand{\epsilon}{\varepsilon}
-- \newcommand{\ssn}[2]{\operatorname{SS}\left(#1_{1:#2}\right)}
 - \renewcommand{\labelitemi}{\normalfont\bfseries\textendash}
+- \newcommand{\ssn}[2]{\operatorname{SS}\left(#1_{1:#2}\right)}
 ---
 ```{r setup, include=FALSE}
 
@@ -208,3 +208,296 @@ hence
 \end{align*}
 This leads us to conclude (substituting again $b = an_0 + 1$ and $c = \sqrt{-n_0t_0}$) that 
    $$Y_{n + 1} | Y_{1:n} \sim f\left(B(a, a(n + n_0) + 1)\right), \text{ with } f: \real^+ \to \real^+, f(x) = \sqrt{\frac{x}{1 - x}} \sqrt{\ssn{y}{n} - n_0t_0}.$$
+   
+   
+   
+# Question 2: Tumor Counts
+
+## Part 1: Tumor Counts
+
+theta_A = Gamma(120, 10)
+theta_B = Gamma(12, 1)
+
+### Point a.
+
+```{r x2a}
+load(file = 'dataAssignment1.RData')
+library(tidyverse)
+library(gridExtra)
+library(grid)
+library(ggplot2)
+library(lattice)
+
+#posterior parameters
+
+a_n = 120.0 + sum(y.a)
+b_n = 10.0 + length(y.a)
+
+c_n = 12 + sum(y.b)
+d_n = 1 + length(y.b)
+
+sprintf("posterior of A : Gamma(%i, %i)", a_n, b_n)
+sprintf("posterior of B : Gamma(%i, %i)", c_n, d_n)
+
+#posterior means
+
+mean_A = a_n / b_n
+mean_B = c_n / d_n
+
+#posterior density and quantile interval for A
+
+y.a.sum = sum(y.a)
+n.a = length(y.a)
+alpha = 0.05
+gamma.values = seq(0, 20, length= 200)
+
+quant.interval.a = qgamma(c(alpha/2,1-alpha/2), shape = a_n, rate = b_n)
+quant.interval.b = qgamma(c(alpha/2,1-alpha/2), shape = c_n, rate = d_n)
+
+post.values.a = dgamma(gamma.values, a_n, b_n)
+post.values.b = dgamma(gamma.values, c_n, d_n)
+
+post.data = data.frame(gamma.values, post.values.a, post.values.b)
+
+#posterior density plots
+
+post.data %>% ggplot()+
+  geom_line(aes(x = gamma.values, y = post.values.a), col = "red", alpha = 0.6, size = 1.2)+ 
+  geom_vline(xintercept = mean_A, col = "red", linetype = 2)+
+  scale_color_discrete(guide = "none") -> p1
+
+post.data %>% ggplot()+
+  geom_line(aes(x = gamma.values, y = post.values.b), col = "blue", alpha = 0.6, size = 1.2)+
+  geom_vline(xintercept = mean_B, col = "blue", linetype = 2)+
+  scale_color_discrete(guide = "none") -> p2
+
+p3 <- p1 + 
+  geom_line(aes(x = gamma.values, y = post.values.b), col = "blue", alpha = 0.6, size = 1.2)+
+  geom_vline(xintercept = mean_B, col = "blue", linetype = 2)+
+  scale_color_discrete(guide = "none")+
+  xlab(expression(theta)) +
+  ylab(expression(paste("p(",theta,"|",y,")")))+
+  ggtitle("Posterior probability densities")  
+
+p1 <- p1 +
+  xlab(expression(theta)) +
+  ylab(expression(paste("p(",theta[A],"|",y[A],")")))+
+  ggtitle(expression(paste("Posterior probability density of ", theta[A])))
+
+p2 <- p2 + 
+  xlab(expression(theta)) +
+  ylab(expression(paste("p(",theta[B],"|",y[B],")")))+
+  ggtitle(expression(paste("Posterior probability density of ", theta[B])))
+
+grid.arrange(arrangeGrob(p1, p2, ncol = 2), p3, nrow = 2)
+
+#quantile-based intervals plots
+
+post.data %>% ggplot()+
+  geom_line(aes(x = gamma.values, y = post.values.a), col="darkgreen", alpha = 0.6, size=1.2)+
+  geom_vline(xintercept = quant.interval.a[1], col = "darkgreen")+
+  geom_vline(xintercept = quant.interval.a[2], col = "darkgreen")+
+  geom_rect(aes(xmin = quant.interval.a[1], xmax = quant.interval.a[2], ymin = -Inf, ymax = Inf), fill = "green", alpha = 0.002)+
+  xlab(expression(theta)) +
+  ylab(expression(paste("p(",theta[A],"|",y[A],")")))+
+  ggtitle(expression(paste("Quantile-based 95% - interval of ", theta[A])))+
+  scale_color_discrete(guide = "none") ->q1
+
+post.data %>% ggplot()+
+  geom_line(aes(x = gamma.values, y = post.values.b), col = "darkorange", alpha = 0.6, size = 1.2)+ 
+  geom_vline(xintercept = quant.interval.b[1], col = "darkorange")+
+  geom_vline(xintercept = quant.interval.b[2], col = "darkorange")+
+  geom_rect(aes(xmin = quant.interval.b[1], xmax = quant.interval.b[2], ymin = -Inf, ymax = Inf), fill = "orange", alpha = 0.002)+
+  xlab(expression(theta)) +
+  ylab(expression(paste("p(",theta[B],"|",y[B],")")))+
+  ggtitle(expression(paste("Quantile-based 95% - interval of ", theta[B])))+
+  scale_color_discrete(guide = "none") -> q2
+
+
+grid.arrange(q1, q2, nrow = 2)
+
+
+```
+
+### Point b.
+
+```{r x2b}
+
+mean.b = rep(0, 50)
+
+n_0 = 1:50
+
+for (i in n_0){
+  a = 12*i + sum(y.b)
+  b = i + length(y.b)
+  mean.b[i] = a/b
+}
+
+mean_varying <- data.frame(n_0, mean.b)
+mean_varying %>% ggplot(aes(x = n_0, y = mean.b))+
+  geom_line(col = "green4")+
+  xlab(expression(n[0]))+
+  ylab (expression(paste("E[",theta[B], "]")))+
+  ggtitle(expression(paste("Posterior mean ", "E[",theta[B], "]", " dependence on ", n[0])))+
+  geom_hline(yintercept = mean_A, col = "red")+
+  scale_color_discrete(guide = "none")+
+  geom_text(aes(50, mean_A, label = mean_A, vjust = +1.5, col = "red"))+
+  geom_text(aes(50, mean.b[50], label = "mean", vjust = +1.5))
+
+
+
+```
+
+
+
+### Point c.
+
+
+### Part 2: Tumor Counts Comparison
+
+
+### Point d.
+```{r x2d}
+S = 10000
+
+#Monte Carlo estimate with original p(theta[B])
+sample.a = rgamma(S, a_n, b_n)
+sample.b = rgamma(S, c_n, d_n)
+
+mc1 = sum(sample.a > sample.b) / S
+
+sprintf("The Monte Carlo estimate given the original prior of theta[B] is: %f", mc1)
+```
+
+
+### Point e.
+
+```{r x2e}
+#Monte Carlo estimate with varying p(theta[B])
+
+mc2 = rep(0, 50)
+
+for (i in n_0){
+  a = 12*i + sum(y.b)
+  b = i + length(y.b)
+  sample2.b = rgamma(S, a, b)
+  mc2[i] = sum(sample.a > sample2.b) / S
+}
+
+mc1_varying <- data.frame(n_0, mc2)
+
+
+mc1_varying %>% ggplot(aes(x = n_0, y = mc2))+
+  geom_line(col = "blue")+
+  xlab(expression(n[0]))+
+  ylab (expression(paste("p(",theta[A], " > ",theta[B], " | ",y[A], " , ", y[B], ")")))+
+  ggtitle(expression(paste("Posterior probability dependence on ", n[0])))+
+  geom_hline(yintercept = mc1, col = "red")+
+  scale_color_discrete(guide = "none")+
+  geom_text(aes(50, mc1, label = mc1, vjust = +1.5, col = "red"))
+
+
+```
+
+
+### Point f.
+
+```{r x2f}
+
+
+#Monte Carlo estimate of the posterior predictive distribution (original theta[B])
+
+y.post.a = rep(0, S)
+y.post.b = rep(0, S)
+
+for (i in 1:S){
+  y.post.a[i] = rpois(1, sample.a[i])
+  y.post.b[i] = rpois(1, sample.b[i])
+}
+
+mc3 = sum(y.post.a > y.post.b)/S
+sprintf("The Monte Carlo estimate given the original prior of theta[B] is: %f", mc3)
+
+#Monte Carlo estimate of the posterior predictive distribution (varying theta[B])
+
+mc4= rep(0, 50)
+
+for (i in 1:50){
+  y.post2.b = rep(0, S)
+  a = 12*i + sum(y.b)
+  b = i + length(y.b)
+  sample2.b = rgamma(S, a, b)
+  for (j in 1:S){
+  y.post2.b[j] = rpois(1, sample2.b[j])
+  }
+  mc4[i] = sum(y.post.a > y.post2.b)/S
+}
+
+mc3_varying <- data.frame(n_0, mc4)
+
+mc3_varying %>% ggplot(aes(x = n_0, y = mc4))+
+  geom_line(col = "darkgreen")+
+  xlab(expression(n[0]))+
+  ylab (expression(paste("p(",y[A], " > ",y[B], " | ", theta[A], " , ", theta[B], ")")))+
+  ggtitle(expression(paste("Posterior probability dependence on ", n[0])))+
+  geom_hline(yintercept = mc3, col = "darkorange")+
+  scale_color_discrete(guide = "none")+
+  geom_text(aes(50, mc3, label = mc3, vjust = +1.5, col = "orange"))
+
+
+```
+
+
+### Part 3: Posterior predictive checks
+
+### Point g.
+```{r x2g}
+
+#generating the samples case theta[A]
+
+K = 1000
+sample.theta.a = rgamma(K, a_n, b_n)
+t1 = rep(0, K)
+for (i in 1:K){
+  post.pred.a = rpois(10, sample.theta.a[i])
+  t1[i] = sum(post.pred.a) / (10*sd(post.pred.a))
+}
+
+t2 =  sum(y.a) / (10*sd(y.a))
+
+t.a <- data.frame(1:K, t1)
+
+colors <- c("data mean" = "blue", "sample mean" = "red")
+
+t.a %>% ggplot()+
+  geom_histogram(aes(t1), bins = 50, fill = "darkorchid", alpha = 0.6, col = "grey")+
+  geom_vline(aes(xintercept = t2, col = "sample mean"), size = 1.2) +
+  geom_vline(aes( xintercept = mean(t1), col = "data mean"), size = 1.2)+
+  scale_color_manual(name = "Legend", values = c( "sample mean" = "blue", "data mean" = "red"),labels = c("sample mean", "data mean"))
+```
+
+###Point h.
+
+```{r x2h}
+
+#generating the samples case theta[B]
+
+K = 1000
+sample.theta.b = rgamma(K, c_n, d_n)
+t3 = rep(0, K)
+for (i in 1:K){
+  post.pred.b = rpois(10, sample.theta.b[i])
+  t3[i] = sum(post.pred.a) / (10*sd(post.pred.b))
+}
+
+t4 =  sum(y.a) / (10*sd(y.a))
+
+t.b <- data.frame(1:K, t3)
+
+t.b %>% ggplot()+
+  geom_histogram(aes(t3), bins = 50, fill = "darkorchid", alpha = 0.6, col = "grey")+
+  geom_vline(aes(xintercept = t4, col = "sample mean"), size = 1.2) +
+  geom_vline(aes( xintercept = mean(t3), col = "data mean"), size = 1.2)+
+  scale_color_manual(name = "Legend", values = c( "sample mean" = "blue", "data mean" = "red"),labels = c("sample mean", "data mean"))
+
+```
