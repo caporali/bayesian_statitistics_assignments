@@ -3,7 +3,7 @@ title: "Assignment 1"
 author: "Francesco Caporali, Isabel Muzio"
 date: '`r Sys.setlocale("LC_TIME", "English"); format(Sys.time(), "%d %B %Y")`'
 output:
-    html_document: default        
+    html_document: default
     pdf_document:
         latex_engine: pdflatex
         includes:
@@ -19,7 +19,7 @@ output:
             amsthm: null
 documentclass: article
 fontsize: 11pt
-geometry: margin=2cm
+geometry: margin = 2cm
 header-includes:
 - \newcommand{\gal}[1]{\operatorname{Galenshore}\left(#1\right)}
 - \newcommand{\indicator}{\mathds{1}}
@@ -37,7 +37,7 @@ header-includes:
 - \newcommand{\Gam}{\textsc{Gamma}}
 - \newcommand{\ssn}[2]{\operatorname{SS}\left(#1_{1:#2}\right)}
 ---
-```{r setup, include=FALSE}
+```{r setup, include = FALSE}
 
 knitr::opts_chunk$set(echo = TRUE)
 
@@ -68,6 +68,20 @@ textit <- function(arg) {
     else if (knitr::is_html_output())
         sprintf("%s", arg)
     else sprintf("%s", arg)
+}
+begin_rcases <- function() {
+    if (knitr::is_latex_output())
+        sprintf("\\begin{rcases}")
+    else if (knitr::is_html_output())
+        sprintf("\\begin{array}{l}")
+    else ""
+}
+end_rcases <- function() {
+    if (knitr::is_latex_output())
+        sprintf("\\end{rcases}")
+    else if (knitr::is_html_output())
+        sprintf("\\end{array} \\hspace{0.3cm}")
+    else ""
 }
 
 library(ggplot2)
@@ -227,16 +241,16 @@ A cancer laboratory is estimating the rate of tumorigenesis in two strains of mi
 
 Given the Poisson-Gamma models defined in the problem, the posterior distributions are:
 \begin{align*}
-    \begin{rcases}
-    Y_A \; | \; \theta_A \sim \text{Pois}(\theta_A) \\
-    \theta_A \sim \text{Gamma}(120, 10)
-    \end{rcases}
-    & \theta_A \; | \; Y_A = \mathbf{y}_A \sim \text{Gamma}(120 + \displaystyle \sum_{i=1}^{n_A} y_{A, i} \;, 10 + n_A) \\
-    \begin{rcases}
-    Y_B \; | \; \theta_B \sim \text{Pois}(\theta_B) \\
-    \theta_B \sim \text{Gamma}(12, 1)
-    \end{rcases}
-    & \theta_B \; | \; Y_B = \mathbf{y}_B \sim \text{Gamma}(12 + \displaystyle \sum_{i=1}^{n_B} y_{B, i} \;, 1 + n_B)
+    `r begin_rcases()`
+        Y_A \; | \; \theta_A \sim \text{Pois}(\theta_A) \\
+        \theta_A \sim \text{Gamma}(120, 10)
+    `r end_rcases()`
+    & \theta_A \; | \; Y_A = \mathbf{y}_A \sim \text{Gamma}(120 + \displaystyle \sum_{i = 1}^{n_A} y_{A, i} \;, 10 + n_A) \\
+    `r begin_rcases()`
+        Y_B \; | \; \theta_B \sim \text{Pois}(\theta_B) \\
+        \theta_B \sim \text{Gamma}(12, 1)
+    `r end_rcases()`
+    & \theta_B \; | \; Y_B = \mathbf{y}_B \sim \text{Gamma}(12 + \displaystyle \sum_{i = 1}^{n_B} y_{B, i} \;, 1 + n_B)
 \end{align*}
 where the observed values of the samples are:
 \begin{align*}
@@ -248,7 +262,7 @@ The consequent posterior distributions are the following:
 
 \scriptsize
 ```{r x2a1}
-load(file = 'dataAssignment1.RData')
+load(file = "data_assignment_1.RData")
 library(tidyverse)
 library(gridExtra)
 library(grid)
@@ -263,98 +277,95 @@ b_n = 10.0 + length(y.a)
 c_n = 12 + sum(y.b)
 d_n = 1 + length(y.b)
 
-cat(paste("Posterior of A : Gamma(", a_n, ",", b_n, ") \n",  "Posterior of B : Gamma(", c_n, ",", d_n, ") \n"))
+cat(paste(" Posterior of A : Gamma(", a_n, ",", b_n, ")\n", "Posterior of B : Gamma(", c_n, ",", d_n, ")\n"))
 
 #posterior means
 
-mean_A = a_n / b_n
-mean_B = c_n / d_n
+mean_a = a_n / b_n
+mean_b = c_n / d_n
 
 #posterior densities
 
 y.a.sum = sum(y.a)
 n.a = length(y.a)
 alpha = 0.05
-gamma.values = seq(0, 20, length= 200)
+gamma.values = seq(0, 20, length = 200)
 
 post.values.a = dgamma(gamma.values, a_n, b_n)
 post.values.b = dgamma(gamma.values, c_n, d_n)
 
 post.data = data.frame(gamma.values, post.values.a, post.values.b)
-
+```
+```{r, fig.align = "center", out.width = "75%"}
 #posterior density plots
 
-post.data %>% ggplot()+
-  geom_line(aes(x = gamma.values, y = post.values.a), col = "red", alpha = 0.6, size = 1.2)+ 
-  geom_vline(xintercept = mean_A, col = "red", linetype = 2)+
+post.data %>% ggplot() +
+  geom_line(aes(x = gamma.values, y = post.values.a), col = "red", alpha = 0.6, size = 1.2) +
+  geom_vline(xintercept = mean_a, col = "red", linetype = 2) +
   scale_color_discrete(guide = "none") -> p1
 
-post.data %>% ggplot()+
-  geom_line(aes(x = gamma.values, y = post.values.b), col = "blue", alpha = 0.6, size = 1.2)+
-  geom_vline(xintercept = mean_B, col = "blue", linetype = 2)+
+post.data %>% ggplot() +
+  geom_line(aes(x = gamma.values, y = post.values.b), col = "blue", alpha = 0.6, size = 1.2) +
+  geom_vline(xintercept = mean_b, col = "blue", linetype = 2) +
   scale_color_discrete(guide = "none") -> p2
 
-p3 <- p1 + 
-  geom_line(aes(x = gamma.values, y = post.values.b), col = "blue", alpha = 0.6, size = 1.2)+
-  geom_vline(xintercept = mean_B, col = "blue", linetype = 2)+
+p3 <- p1 +
+  geom_line(aes(x = gamma.values, y = post.values.b), col = "blue", alpha = 0.6, size = 1.2) +
+  geom_vline(xintercept = mean_b, col = "blue", linetype = 2) +
   xlab(expression(theta)) +
-  ylab(expression(paste("p(",theta,"|",y,")")))+
-  ggtitle("Posterior probability densities")  
+  ylab(expression(paste("p(", theta, "|", y, ")"))) +
+  ggtitle("Posterior probability densities")
 
 p1 <- p1 +
-  geom_vline(xintercept = mean(y.a), col = "chartreuse3", linetype = 1)+
+  geom_vline(xintercept = mean(y.a), col = "chartreuse3", linetype = 1) +
   xlab(expression(theta)) +
-  ylab(expression(paste("p(",theta[A],"|",y[A],")")))+
+  ylab(expression(paste("p(", theta[A], "|", y[A], ")"))) +
   ggtitle(expression(paste("Posterior probability density of ", theta[A])))
 
-p2 <- p2 + 
-  geom_vline(xintercept = mean(y.b), col = "orange", linetype = 1)+
+p2 <- p2 +
+  geom_vline(xintercept = mean(y.b), col = "orange", linetype = 1) +
   xlab(expression(theta)) +
-  ylab(expression(paste("p(",theta[B],"|",y[B],")")))+
+  ylab(expression(paste("p(", theta[B], "|", y[B], ")"))) +
   ggtitle(expression(paste("Posterior probability density of ", theta[B])))
 
 grid.arrange(arrangeGrob(p1, p2, ncol = 2), p3, nrow = 2)
 ```
-
 \normalsize
 
 Using the posterior distributions, the 95% quantile-based intervals are:
 
 \scriptsize
-
 ```{r x2a2}
-
 #quantile intervals
 
-quant.interval.a = qgamma(c(alpha/2,1-alpha/2), shape = a_n, rate = b_n)
-quant.interval.b = qgamma(c(alpha/2,1-alpha/2), shape = c_n, rate = d_n)
-
+quant.interval.a = qgamma(c(alpha / 2, 1 - alpha / 2), shape = a_n, rate = b_n)
+quant.interval.b = qgamma(c(alpha / 2, 1 - alpha / 2), shape = c_n, rate = d_n)
+```
+```{r, fig.align = "center", out.width = "75%"}
 #quantile-based intervals plots
 
-post.data %>% ggplot()+
-  geom_line(aes(x = gamma.values, y = post.values.a), col="darkgreen", alpha = 0.6, size=1.2)+
-  geom_vline(xintercept = quant.interval.a[1], col = "darkgreen")+
-  geom_vline(xintercept = quant.interval.a[2], col = "darkgreen")+
-  geom_rect(aes(xmin = quant.interval.a[1], xmax = quant.interval.a[2], ymin = -Inf, ymax = Inf), fill = "green", alpha = 0.002)+
+post.data %>% ggplot() +
+  geom_line(aes(x = gamma.values, y = post.values.a), col = "darkgreen", alpha = 0.6, size = 1.2) +
+  geom_vline(xintercept = quant.interval.a[1], col = "darkgreen") +
+  geom_vline(xintercept = quant.interval.a[2], col = "darkgreen") +
+  geom_rect(aes(xmin = quant.interval.a[1], xmax = quant.interval.a[2], ymin = -Inf, ymax = Inf), fill = "green", alpha = 0.002) +
   xlab(expression(theta)) +
-  ylab(expression(paste("p(",theta[A],"|",y[A],")")))+
-  ggtitle(expression(paste("Quantile-based 95% - interval of ", theta[A])))+
-  scale_color_discrete(guide = "none") ->q1
+  ylab(expression(paste("p(", theta[A], "|", y[A], ")"))) +
+  ggtitle(expression(paste("Quantile-based 95% - interval of ", theta[A]))) +
+  scale_color_discrete(guide = "none") -> q1
 
-post.data %>% ggplot()+
-  geom_line(aes(x = gamma.values, y = post.values.b), col = "darkorange", alpha = 0.6, size = 1.2)+ 
-  geom_vline(xintercept = quant.interval.b[1], col = "darkorange")+
-  geom_vline(xintercept = quant.interval.b[2], col = "darkorange")+
-  geom_rect(aes(xmin = quant.interval.b[1], xmax = quant.interval.b[2], ymin = -Inf, ymax = Inf), fill = "orange", alpha = 0.002)+
+post.data %>% ggplot() +
+  geom_line(aes(x = gamma.values, y = post.values.b), col = "darkorange", alpha = 0.6, size = 1.2) +
+  geom_vline(xintercept = quant.interval.b[1], col = "darkorange") +
+  geom_vline(xintercept = quant.interval.b[2], col = "darkorange") +
+  geom_rect(aes(xmin = quant.interval.b[1], xmax = quant.interval.b[2], ymin = -Inf, ymax = Inf), fill = "orange", alpha = 0.002) +
   xlab(expression(theta)) +
-  ylab(expression(paste("p(",theta[B],"|",y[B],")")))+
-  ggtitle(expression(paste("Quantile-based 95% - interval of ", theta[B])))+
+  ylab(expression(paste("p(", theta[B], "|", y[B], ")"))) +
+  ggtitle(expression(paste("Quantile-based 95% - interval of ", theta[B]))) +
   scale_color_discrete(guide = "none") -> q2
 
 
 grid.arrange(q1, q2, nrow = 2)
-
-
 ```
 \normalsize
 
@@ -362,16 +373,16 @@ grid.arrange(q1, q2, nrow = 2)
 
 Suppose we now consider a new model, where the prior for $\theta_B$ is dependent on a parameter $n_0$ in the following way:
 \begin{align*}
-    \theta_B \sim \text{Gamma}(12 x n_0, n_0})
+    \theta_B \sim \text{Gamma}(12 \times n_0, n_0)
 \end{align*}
 
 Therefore the new posterior is the following:
 \begin{align*}
-\begin{rcases}
-    Y_B \; | \; \theta_B \sim \text{Pois}(\theta_B) \\
-    \theta_B \sim \text{Gamma}(12 x n_0, n_0)
-    \end{rcases}
-    \theta_B \; | \; Y_B = \mathbf{y}_B \sim \text{Gamma}(12 x n_0 + \displaystyle \sum_{i=1}^{n_B} y_{B, i} \;, n_0 + n_B)
+    `r begin_rcases()`
+        Y_B \; | \; \theta_B \sim \text{Pois}(\theta_B) \\
+        \theta_B \sim \text{Gamma}(12 \times n_0, n_0)
+    `r end_rcases()`
+    \theta_B \; | \; Y_B = \mathbf{y}_B \sim \text{Gamma}(12 \times n_0 + \displaystyle \sum_{i = 1}^{n_B} y_{B, i} \;, n_0 + n_B)
 \end{align*}
 
 The posterior mean therefore depends on the parameter $n_0$ with the following evolution:
@@ -384,27 +395,29 @@ mean.b = rep(0, 50)
 n_0 = 1:50
 
 for (i in n_0){
-  a = 12*i + sum(y.b)
+  a = 12 * i + sum(y.b)
   b = i + length(y.b)
-  mean.b[i] = a/b
+  mean.b[i] = a / b
 }
 
 mean_varying <- data.frame(n_0, mean.b)
 ```
 ```{r, fig.align = "center", out.width = "60%"}
-mean_varying %>% ggplot(aes(x = n_0, y = mean.b))+
-  geom_line(col = "green4")+
-  xlab(expression(n[0]))+
-  ylab (expression(paste("E[",theta[B], "]")))+
-  ggtitle(expression(paste("Posterior mean ", "E[",theta[B], "]", " dependence on ", n[0])))+
-  geom_hline(yintercept = mean_A, col = "red")+
-  scale_color_discrete(guide = "none")+
-  geom_text(aes(50, mean_A, label = mean_A, vjust = +1.5, col = "red"))+
+mean_varying %>% ggplot(aes(x = n_0, y = mean.b)) +
+  geom_line(col = "green4") +
+  xlab(expression(n[0])) +
+  ylab(expression(paste("E[", theta[B], "]"))) +
+  ggtitle(expression(paste("Posterior mean ", "E[", theta[B], "]", " dependence on ", n[0]))) +
+  geom_hline(yintercept = mean_a, col = "red") +
+  scale_color_discrete(guide = "none") +
+  geom_text(aes(50, mean_a, label = mean_a, vjust = +1.5, col = "red")) +
   geom_text(aes(50, mean.b[50], label = "mean", vjust = +1.5))
 ```
 \normalsize
 
 As we can observe, the more $n_0$ grows, the more the posterior mean of $\theta_B$ approaches that of $\theta_A$, as we can observe if we extend the interval of variation of $n_0$ itself:
+
+\scriptsize
 ```{r x2b2}
 
 mean.b = rep(0, 200)
@@ -412,24 +425,25 @@ mean.b = rep(0, 200)
 n_0 = 1:200
 
 for (i in n_0){
-  a = 12*i + sum(y.b)
+  a = 12 * i + sum(y.b)
   b = i + length(y.b)
-  mean.b[i] = a/b
+  mean.b[i] = a / b
 }
 
 mean_varying_2 <- data.frame(n_0, mean.b)
 ```
 ```{r, fig.align = "center", out.width = "60%"}
-mean_varying_2 %>% ggplot(aes(x = n_0, y = mean.b))+
-  geom_line(col = "green4")+
-  xlab(expression(n[0]))+
-  ylab (expression(paste("E[",theta[B], "]")))+
-  ggtitle(expression(paste("Posterior mean ", "E[",theta[B], "]", " dependence on ", n[0])))+
-  geom_hline(yintercept = mean_A, col = "red")+
-  scale_color_discrete(guide = "none")+
-  geom_text(aes(200, mean_A, label = mean_A, vjust = +1.5, col = "red"))+
+mean_varying_2 %>% ggplot(aes(x = n_0, y = mean.b)) +
+  geom_line(col = "green4") +
+  xlab(expression(n[0])) +
+  ylab(expression(paste("E[", theta[B], "]"))) +
+  ggtitle(expression(paste("Posterior mean ", "E[", theta[B], "]", " dependence on ", n[0]))) +
+  geom_hline(yintercept = mean_a, col = "red") +
+  scale_color_discrete(guide = "none") +
+  geom_text(aes(200, mean_a, label = mean_a, vjust =  +1.5, col = "red")) +
   geom_text(aes(200, mean.b[200], label = "mean", vjust = +1.5))
 ```
+\normalsize
 
 Therefore we can deduce that a large $n_0$ is required in order to have a posterior expectation close to that of $\theta_A$.
 
@@ -444,15 +458,16 @@ Even though we know that some form of dependency exists between the two paramete
 
 We can use the posterior distributions to obtain an approximation of $p \,( \, \theta_B < \theta_A \; | \; \mathbf{y}_A, \mathbf{y}_B)$ through Monte Carlo sampling.
 We start by obtaining that of the original distributions:
+
 \scriptsize
 ```{r x2d}
-S = 10000
+s = 10000
 
 #Monte Carlo estimate with original p(theta[B])
-sample.a = rgamma(S, a_n, b_n)
-sample.b = rgamma(S, c_n, d_n)
+sample.a = rgamma(s, a_n, b_n)
+sample.b = rgamma(s, c_n, d_n)
 
-mc1 = sum(sample.a > sample.b) / S
+mc1 = sum(sample.a > sample.b) / s
 
 sprintf("The Monte Carlo estimate given the original prior of theta[B] is: %f", mc1)
 ```
@@ -469,22 +484,22 @@ n_0 = 1:50
 mc2 = rep(0, 50)
 
 for (i in n_0){
-  a = 12*i + sum(y.b)
+  a = 12 * i + sum(y.b)
   b = i + length(y.b)
-  sample2.b = rgamma(S, a, b)
-  mc2[i] = sum(sample.a > sample2.b) / S
+  sample2.b = rgamma(s, a, b)
+  mc2[i] = sum(sample.a > sample2.b) / s
 }
 
 mc1_varying <- data.frame(n_0, mc2)
 ```
 ```{r, fig.align = "center", out.width = "60%"}
-mc1_varying %>% ggplot(aes(x = n_0, y = mc2))+
-  geom_line(col = "blue")+
-  xlab(expression(n[0]))+
-  ylab (expression(paste("p(",theta[A], " > ",theta[B], " | ",y[A], " , ", y[B], ")")))+
-  ggtitle(expression(paste("Posterior probability dependence on ", n[0])))+
-  geom_hline(yintercept = mc1, col = "red")+
-  scale_color_discrete(guide = "none")+
+mc1_varying %>% ggplot(aes(x = n_0, y = mc2)) +
+  geom_line(col = "blue") +
+  xlab(expression(n[0])) +
+  ylab(expression(paste("p(", theta[A], " > ", theta[B], " | ", y[A], " , ", y[B], ")"))) +
+  ggtitle(expression(paste("Posterior probability dependence on ", n[0]))) +
+  geom_hline(yintercept = mc1, col = "red") +
+  scale_color_discrete(guide = "none") +
   geom_text(aes(50, mc1, label = mc1, vjust = +1.5, col = "red"))
 ```
 \normalsize
@@ -494,49 +509,49 @@ The resulting Monte Carlo estimate is very sensitive to the variation of the pri
 ### Point f.
 
 We can also obtain an estimate for $p \,( \, \tilde{Y_B} < \tilde{Y_A} \; | \; \mathbf{y}_A, \mathbf{y}_B)$, where $\tilde{Y_A}, \tilde{Y_B}$ are samples from the posterior predictive distributions, using Monte Carlo sampling.
-Again we compare the results given the original prior for $\theta_B$ and the parametrized one: the fall is relatively less prominent (\sim 20% versus \sim 40% in the same interval of variation), but still strong, especially considering that the starting probability was already far lower than in the previous case.
+Again we compare the results given the original prior for $\theta_B$ and the parametrized one: the fall is relatively less prominent ($\sim 20\%$ versus $\sim 40\%$ in the same interval of variation), but still strong, especially considering that the starting probability was already far lower than in the previous case.
 
 \scriptsize
 ```{r x2f}
 
 #Monte Carlo estimate of the posterior predictive distribution (original theta[B])
 
-y.post.a = rep(0, S)
-y.post.b = rep(0, S)
+y.post.a = rep(0, s)
+y.post.b = rep(0, s)
 
-for (i in 1:S){
+for (i in 1:s){
   y.post.a[i] = rpois(1, sample.a[i])
   y.post.b[i] = rpois(1, sample.b[i])
 }
 
-mc3 = sum(y.post.a > y.post.b)/S
+mc3 = sum(y.post.a > y.post.b) / s
 sprintf("The Monte Carlo estimate given the original prior of theta[B] is: %f", mc3)
 
 #Monte Carlo estimate of the posterior predictive distribution (varying theta[B])
 
-mc4= rep(0, 50)
+mc4 = rep(0, 50)
 
 for (i in 1:50){
-  y.post2.b = rep(0, S)
-  a = 12*i + sum(y.b)
+  y.post2.b = rep(0, s)
+  a = 12 * i + sum(y.b)
   b = i + length(y.b)
-  sample2.b = rgamma(S, a, b)
-  for (j in 1:S){
+  sample2.b = rgamma(s, a, b)
+  for (j in 1:s){
   y.post2.b[j] = rpois(1, sample2.b[j])
   }
-  mc4[i] = sum(y.post.a > y.post2.b)/S
+  mc4[i] = sum(y.post.a > y.post2.b) / s
 }
 
 mc3_varying <- data.frame(n_0, mc4)
 ```
 ```{r, fig.align = "center", out.width = "60%"}
-mc3_varying %>% ggplot(aes(x = n_0, y = mc4))+
-  geom_line(col = "darkgreen")+
-  xlab(expression(n[0]))+
-  ylab (expression(paste("p(",y[A], " > ",y[B], " | ", theta[A], " , ", theta[B], ")")))+
-  ggtitle(expression(paste("Posterior probability dependence on ", n[0])))+
-  geom_hline(yintercept = mc3, col = "darkorange")+
-  scale_color_discrete(guide = "none")+
+mc3_varying %>% ggplot(aes(x = n_0, y = mc4)) +
+  geom_line(col = "darkgreen") +
+  xlab(expression(n[0])) +
+  ylab(expression(paste("p(", y[A], " > ", y[B], " | ", theta[A], " , ", theta[B], ")"))) +
+  ggtitle(expression(paste("Posterior probability dependence on ", n[0]))) +
+  geom_hline(yintercept = mc3, col = "darkorange") +
+  scale_color_discrete(guide = "none") +
   geom_text(aes(50, mc3, label = mc3, vjust = +1.5, col = "orange"))
 ```
 \normalsize
@@ -546,7 +561,7 @@ mc3_varying %>% ggplot(aes(x = n_0, y = mc4))+
 Lastly one can investigate the adequacy of the Poisson model for the tumor count data in the following way.
 
 ### Point g.
-First we generate posterior predictive datasets $\mathbf{y}^{(1)}_{A}, ...\mathbf{y}^{(1000)}_{A} $, where each $\mathbf{y}^{(s)}_{A}$ is a sample of size $n_A$ = 10 from the Poisson distribution with parameter $\theta^{(s)}_{A}$ and $\theta^{(s)}_{A}$ is itself a sample from the posterior distribution $p \, ( \, \theta_A \; | \; Y_A = \mathbf{y}_A)$, and $\mathbf{y}_A$ is the observed data.
+First we generate posterior predictive datasets \(\mathbf{y}^{(1)}_{A}, \dots, \mathbf{y}^{(1000)}_{A}\), where each $\mathbf{y}^{(s)}_{A}$ is a sample of size $n_A$ = 10 from the Poisson distribution with parameter $\theta^{(s)}_{A}$ and $\theta^{(s)}_{A}$ is itself a sample from the posterior distribution $p \, ( \, \theta_A \; | \; Y_A = \mathbf{y}_A)$, and $\mathbf{y}_A$ is the observed data.
 
 \scriptsize
 ```{r x2g}
@@ -558,24 +573,23 @@ sample.theta.a = rgamma(K, a_n, b_n)
 t1 = rep(0, K)
 for (i in 1:K){
   post.pred.a = rpois(10, sample.theta.a[i])
-  t1[i] = sum(post.pred.a) / (10*sd(post.pred.a))
+  t1[i] = sum(post.pred.a) / (10 * sd(post.pred.a))
 }
 
-t2 =  sum(y.a) / (10*sd(y.a))
+t2 =  sum(y.a) / (10 * sd(y.a))
 
 t.a <- data.frame(1:K, t1)
 
 colors <- c("data mean" = "blue", "sample mean" = "red")
 ```
 ```{r, fig.align = "center", out.width = "60%"}
-t.a %>% ggplot()+
-  geom_histogram(aes(t1), bins = 50, fill = "darkorchid", alpha = 0.6, col = "grey")+
-  geom_vline(aes(xintercept = t2, col = "sample mean"), size = 1.2) +
-  geom_vline(aes( xintercept = mean(t1), col = "data mean"), size = 1.2)+
-  xlab("t")+
-  ggtitle("Test Statistic empirical distribution")+
-  scale_color_manual(name = "Legend", values = c( "sample mean" = "blue", "data mean" = "red"), labels = c("sample statistic", "data statistic"))
-  
+t.a %>% ggplot() +
+  geom_histogram(aes(t1), bins = 50, fill = "darkorchid", alpha = 0.6, col = "grey") +
+  geom_vline(aes(xintercept = t2, col = "sample mean"), size = 1.2)  +
+  geom_vline(aes(xintercept = mean(t1), col = "data mean"), size = 1.2) +
+  xlab("t") +
+  ggtitle("Test Statistic empirical distribution") +
+  scale_color_manual(name = "Legend", values = c("sample mean" = "blue", "data mean" = "red"), labels = c("sample statistic", "data statistic"))
 ```
 \normalsize
 
@@ -583,7 +597,8 @@ We can see that while the distribution is spread out, the expected value of the 
 
 ### Point h.
 
-We can repeat the same procedure with the second model, by generting posterior predictive datasets $\mathbf{y}^{(1)}_{B}, ...\mathbf{y}^{(1000)}_{B} $, where each $\mathbf{y}^{(s)}_{B}$ is a sample of size $n_B$ = 13 from the Poisson distribution with parameter $\theta^{(s)}_{B}$ and $\theta^{(s)}_{B}$ is itself a sample from the posterior distribution $p \, ( \, \theta_B \; | \; Y_B = \mathbf{y}_B)$, and $\mathbf{y}_B$ is the observed data.
+We can repeat the same procedure with the second model, by generting posterior predictive datasets $\mathbf{y}^{(1)}_{B}, ...\mathbf{y}^{(1000)}_{B}$, where each $\mathbf{y}^{(s)}_{B}$ is a sample of size $n_B$ = 13 from the Poisson distribution with parameter $\theta^{(s)}_{B}$ and $\theta^{(s)}_{B}$ is itself a sample from the posterior distribution $p \, ( \, \theta_B \; | \; Y_B = \mathbf{y}_B)$, and $\mathbf{y}_B$ is the observed data.
+
 \scriptsize
 ```{r x2h}
 
@@ -594,21 +609,21 @@ sample.theta.b = rgamma(K, c_n, d_n)
 t3 = rep(0, K)
 for (i in 1:K){
   post.pred.b = rpois(13, sample.theta.b[i])
-  t3[i] = sum(post.pred.a) / (13*sd(post.pred.b))
+  t3[i] = sum(post.pred.a) / (13 * sd(post.pred.b))
 }
 
-t4 =  sum(y.a) / (13*sd(y.a))
+t4 =  sum(y.a) / (13 * sd(y.a))
 
 t.b <- data.frame(1:K, t3)
 ```
 ```{r, fig.align = "center", out.width = "60%"}
-t.b %>% ggplot()+
-  geom_histogram(aes(t3), bins = 50, fill = "darkorchid", alpha = 0.6, col = "grey")+
+t.b %>% ggplot() +
+  geom_histogram(aes(t3), bins = 50, fill = "darkorchid", alpha = 0.6, col = "grey") +
   geom_vline(aes(xintercept = t4, col = "sample statistic"), size = 1.2) +
-  geom_vline(aes( xintercept = mean(t3), col = "data statistic"), size = 1.2)+
-  xlab("t")+
-  ggtitle("Test Statistic empirical distribution")+
-  scale_color_manual(name = "Legend", values = c( "sample statistic" = "blue", "data statistic" = "red"), labels = c("sample statistic", "data statistic"))
+  geom_vline(aes(xintercept = mean(t3), col = "data statistic"), size = 1.2) +
+  xlab("t") +
+  ggtitle("Test Statistic empirical distribution") +
+  scale_color_manual(name = "Legend", values = c("sample statistic" = "blue", "data statistic" = "red"), labels = c("sample statistic", "data statistic"))
 ```
 \normalsize
 
