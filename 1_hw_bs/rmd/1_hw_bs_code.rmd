@@ -187,7 +187,7 @@ and then, by definition $\ssn{Y}{n} \deq \sum_{i = 1}^n Y_i^2$ is a sufficient s
 ## Point d.
 
 Recalling that $\theta | Y_{1:n} \sim \gal{a(n + n_0) + 1, \sqrt{\ssn{y}{n} - n_0t_0}}$ and that if $X \sim \gal{a, \theta} \implies \mean{X} = \frac{\Gamma\left(a + \frac{1}{2}\right)}{\theta \Gamma(a)}$ we have
-    $$\mean{\theta|y_{1:n}} = \frac{\Gamma\left(a(n + n_0) + frac{3}{2}\right)}{\left(\sqrt{\ssn{y}{n} - n_0t_0}\right) \Gamma(a(n + n_0) + 1)}$$
+    $$\mean{\theta|y_{1:n}} = \frac{\Gamma\left(a(n + n_0) + \frac{3}{2}\right)}{\left(\sqrt{\ssn{y}{n} - n_0t_0}\right) \Gamma(a(n + n_0) + 1)}$$
 
 ## Point e.
 
@@ -348,7 +348,8 @@ post.data %>% ggplot() +
   geom_line(aes(x = gamma.values, y = post.values.a), col = "darkgreen", alpha = 0.6, size = 1.2) +
   geom_vline(xintercept = quant.interval.a[1], col = "darkgreen") +
   geom_vline(xintercept = quant.interval.a[2], col = "darkgreen") +
-  geom_rect(aes(xmin = quant.interval.a[1], xmax = quant.interval.a[2], ymin = -Inf, ymax = Inf), fill = "green", alpha = 0.002) +
+  geom_rect(aes(xmin = quant.interval.a[1], xmax = quant.interval.a[2], ymin = -Inf, ymax = Inf), fill = "green",
+    alpha = 0.002) +
   xlab(expression(theta)) +
   ylab(expression(paste("p(", theta[A], "|", y[A], ")"))) +
   ggtitle(expression(paste("Quantile-based 95% - interval of ", theta[A]))) +
@@ -358,7 +359,8 @@ post.data %>% ggplot() +
   geom_line(aes(x = gamma.values, y = post.values.b), col = "darkorange", alpha = 0.6, size = 1.2) +
   geom_vline(xintercept = quant.interval.b[1], col = "darkorange") +
   geom_vline(xintercept = quant.interval.b[2], col = "darkorange") +
-  geom_rect(aes(xmin = quant.interval.b[1], xmax = quant.interval.b[2], ymin = -Inf, ymax = Inf), fill = "orange", alpha = 0.002) +
+  geom_rect(aes(xmin = quant.interval.b[1], xmax = quant.interval.b[2], ymin = -Inf, ymax = Inf), fill = "orange",
+    alpha = 0.002) +
   xlab(expression(theta)) +
   ylab(expression(paste("p(", theta[B], "|", y[B], ")"))) +
   ggtitle(expression(paste("Quantile-based 95% - interval of ", theta[B]))) +
@@ -589,7 +591,8 @@ t.a %>% ggplot() +
   geom_vline(aes(xintercept = mean(t1), col = "data mean"), size = 1.2) +
   xlab("t") +
   ggtitle("Test Statistic empirical distribution") +
-  scale_color_manual(name = "Legend", values = c("sample mean" = "blue", "data mean" = "red"), labels = c("sample statistic", "data statistic"))
+  scale_color_manual(name = "Legend", values = c("sample mean" = "blue", "data mean" = "red"), 
+    labels = c("sample statistic", "data statistic"))
 ```
 \normalsize
 
@@ -623,7 +626,8 @@ t.b %>% ggplot() +
   geom_vline(aes(xintercept = mean(t3), col = "data statistic"), size = 1.2) +
   xlab("t") +
   ggtitle("Test Statistic empirical distribution") +
-  scale_color_manual(name = "Legend", values = c("sample statistic" = "blue", "data statistic" = "red"), labels = c("sample statistic", "data statistic"))
+  scale_color_manual(name = "Legend", values = c("sample statistic" = "blue", "data statistic" = "red"), 
+    labels = c("sample statistic", "data statistic"))
 ```
 \normalsize
 
