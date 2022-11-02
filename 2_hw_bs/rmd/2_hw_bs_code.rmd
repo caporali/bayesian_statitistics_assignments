@@ -1,0 +1,98 @@
+---
+title: "Assignment 2"
+author: "Francesco Caporali, Isabel Muzio"
+date: '`r Sys.setlocale("LC_TIME", "English"); format(Sys.time(), "%d %B %Y")`'
+output:
+    html_document: default
+    pdf_document:
+        latex_engine: pdflatex
+        includes:
+            in_header: files/preamble.tex
+        extra_dependencies:
+            inputenc: ["utf8"]
+            fontenc: ["T1"]
+            dsfont: null
+            cancel: null
+            mathtools: null
+            amsmath: null
+            amsfonts: null
+            amsthm: null
+documentclass: article
+fontsize: 11pt
+geometry: margin = 2cm
+header-includes:
+- \newcommand{\gal}[1]{\operatorname{Galenshore}\left(#1\right)}
+- \newcommand{\indicator}{\mathds{1}}
+- \newcommand{\mean}[1]{\mathbb{E}\left[#1\right]}
+- \newcommand{\var}[1]{\operatorname{Var}\left(#1\right)}
+- \newcommand{\cov}[2]{\operatorname{Cov}\left(#1,#2\right)}
+- \newcommand{\corr}[2]{\operatorname{Corr}\left(#1,#2\right)}
+- \renewcommand{\det}[1]{\operatorname{det}\left(#1\right)}
+- \newcommand{\real}{\mathbb{R}}
+- \newcommand{\prob}[1]{\mathbb{P}\left(#1\right)}
+- \newcommand{\deq}{\stackrel{\text{def}}{=}}
+- \newcommand{\convp}{\xrightarrow{\prob}}
+- \renewcommand{\epsilon}{\varepsilon}
+- \renewcommand{\labelitemi}{\normalfont\bfseries\textendash}
+- \newcommand{\Gam}{\textsc{Gamma}}
+- \newcommand{\ssn}[2]{\operatorname{SS}\left(#1_{1:#2}\right)}
+---
+```{r setup, include = FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+
+colorize <- function(x, color) {
+    if (knitr::is_latex_output())
+        sprintf("\\textcolor{%s}{%s}", color, x)
+    else if (knitr::is_html_output())
+        sprintf('<span style = "color: %s;">%s</span>', color, x)
+    else x
+} # `r textit("red", "aaa")`
+indicator <- function() {
+    if (knitr::is_latex_output())
+        sprintf("\\indicator")
+    else if (knitr::is_html_output())
+        sprintf("1")
+    else sprintf("1")
+} #`r indicator()`
+newline <- function() {
+    if (knitr::is_latex_output())
+        sprintf("\\")
+    else if (knitr::is_html_output())
+        sprintf("<br>")
+    else ""
+} # `r newline()`
+textit <- function(arg) {
+    if (knitr::is_latex_output())
+        sprintf("\\textit{%s}", arg)
+    else if (knitr::is_html_output())
+        sprintf("%s", arg)
+    else sprintf("%s", arg)
+} # `r textit("aaa")`
+begin_rcases <- function() {
+    if (knitr::is_latex_output())
+        sprintf("\\begin{rcases}")
+    else if (knitr::is_html_output())
+        sprintf("\\begin{array}{l}")
+    else ""
+} # `r begin_rcases()`
+end_rcases <- function() {
+    if (knitr::is_latex_output())
+        sprintf("\\end{rcases}")
+    else if (knitr::is_html_output())
+        sprintf("\\end{array} \\hspace{0.3cm}")
+    else ""
+} # `r end_rcases()`
+
+library(ggplot2)
+```
+
+# Question 1
+
+## Point a.
+
+\scriptsize
+```{r}
+
+```
+\normalsize
