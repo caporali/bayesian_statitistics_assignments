@@ -431,7 +431,9 @@ c\right)\right)\)</span>. <br> It follows that, conditionally on <span class="ma
 1_{(-\infty, z_i)^C}(c)\right) 1_{\{0, 1\}}(y_i).
   \]</span></li>
 </ul>
-<p>The full conditional distribution <span class="math inline">\(p(\beta
+<p>In order to obtain (and sample) from the full conditionals we assume
+<span class="math inline">\(\beta\)</span> and <span class="math inline">\(c\)</span> a priori independent. <br> The full
+conditional distribution <span class="math inline">\(p(\beta
 \,|\,y_{1:n}, z_{1:n}, c)\)</span> can be obtained just from <span class="math inline">\(p(z_i \,|\,\beta)\)</span>, indeed <span class="math display">\[\begin{align*}
         p(\beta \,|\,y_{1:n}, z_{1:n}, c) &amp; = \frac{p(\beta,
 y_{1:n}, z_{1:n}, c)}{p(y_{1:n}, z_{1:n}, c)} \frac{p(\beta, z_{1:n},
@@ -482,9 +484,97 @@ x_i z_i \right)
 <p>Assuming <span class="math inline">\(c \sim
 \mathcal{N}\left(0,\sigma_c^2\right)\)</span>, show that <span class="math inline">\(p(c \,|\,y_{1:n}, z_{1:n}, \beta)\)</span> is a
 constrained normal density, i.e. proportional to a normal density but
-constrained to lie in an interval. Similarly, show that <span class="math inline">\(p(z_i | y_{1:n}, z_{-i}, \beta, c)\)</span> is
+constrained to lie in an interval. Similarly, show that <span class="math inline">\(p(z_i \,|\,y_{1:n}, z_{-i}, \beta, c)\)</span> is
 proportional to a normal density but constrained to be either above
-<span class="math inline">\(c\)</span> or below <span class="math inline">\(c\)</span>, depending on <span class="math inline">\(y_i\)</span>.</p>
+<span class="math inline">\(c\)</span> or below <span class="math inline">\(c\)</span>, depending on <span class="math inline">\(y_i\)</span>. <br> Hint: A constrained, or
+truncated, normal random variable <span class="math inline">\(V\)</span>
+is obtained by restricting a normally distributed random variable <span class="math inline">\(\mathcal{N}\left(\mu,\tau^2\right)\)</span> to lie
+in an interval <span class="math inline">\((a, b)\)</span>, with
+possibly <span class="math inline">\(a = -\infty\)</span> or <span class="math inline">\(b = +\infty\)</span>. We use the notation <span class="math inline">\(V \sim
+\mathcal{T}\mathcal{N}_{(a,b)}\left(\mu,\tau^2\right)\)</span>. It
+holds:</p>
+<ul>
+<li><span class="math inline">\(p(v \,|\,\mu, \tau^2, a, b) =
+\frac{1}{C} \frac{1}{\sqrt{2\pi\tau^2}}
+\operatorname{exp}\left(-\frac{1}{2\tau^2}(v - \mu)^2\right) 1_{(a,
+b)}(v)\)</span>, where <span class="math inline">\(C = \Phi\left(\frac{b
+- \mu}{\tau}\right) - \Phi\left(\frac{a - \mu}{\tau}\right)\)</span>
+being <span class="math inline">\(\Phi(\cdot)\)</span> the cdf of the
+standard normal distribution. By definition, it holds <span class="math inline">\(\Phi\left(\frac{b - \mu}{\tau}\right) = 1\)</span>
+if <span class="math inline">\(b = \infty\)</span> and <span class="math inline">\(\Phi\left(\frac{a - \mu}{\tau}\right) = 0\)</span>
+if <span class="math inline">\(a = -\infty\)</span>.</li>
+<li>Sampling can be performed thanks to the function from the package
+[<a href="https://cran.r-project.org/web/packages/truncnorm/truncnorm.pdf" class="uri">https://cran.r-project.org/web/packages/truncnorm/truncnorm.pdf</a>].
+This function receives in input the number of desired samples (<span class="math inline">\(n\)</span>) and the four parameters specifying the
+distribution of <span class="math inline">\(V\)</span>: <span class="math inline">\(a, b, \mu, \tau\)</span>. Pay attention that it
+takes as last inputs the mean <span class="math inline">\(\mu\)</span>
+and the standard deviation <span class="math inline">\(\tau\)</span>
+(not the variance <span class="math inline">\(\tau^2\)</span>) of the
+un-truncated normal density.</li>
+</ul>
+<p>As before, the full conditional distribution <span class="math inline">\(p(c \,|\,y_{1:n}, z_{1:n}, \beta)\)</span> can be
+obtained just from <span class="math inline">\(p(y_i \,|\,c,
+z_i)\)</span>, indeed <span class="math display">\[\begin{align*}
+        p(c \,|\,y_{1:n}, z_{1:n}, \beta) &amp; = \frac{p(c, y_{1:n},
+z_{1:n}, \beta)}{p(y_{1:n}, z_{1:n}, \beta)} \frac{p(\beta, c,
+z_{1:n})}{p(\beta, c, z_{1:n})} \frac{p(c, \beta)}{p(c, \beta)}
+\frac{p(\beta)}{p(\beta)} \propto \\
+        &amp; \propto \frac{p(c, y_{1:n}, z_{1:n}, \beta)}{p(\beta, c,
+z_{1:n})} \frac{p(\beta, c, z_{1:n})}{p(c, \beta)} \frac{p(c,
+\beta)}{p(\beta)} = \\
+        &amp; = p(y_{1:n} \,|\,\beta, c, z_{1:n}) p(z_{1:n} \,|\,\beta,
+c) p(c \,|\,\beta) \propto \\
+        &amp; \propto p(y_{1:n} \,|\,c, z_{1:n}) p(c).
+    \end{align*}\]</span> So we can write explicitly <span class="math display">\[\begin{align*}
+        p(c \,|\,y_{1:n}, z_{1:n}, \beta) &amp; \propto p(y_{1:n}
+\,|\,c, z_{1:n}) p(c) = \\
+        &amp; = \prod_{i = 1}^n p(y_i \,|\,c, z_i) p(c) \propto \\
+        &amp; \propto \operatorname{exp}\left(-\frac{1}{2}
+\frac{1}{\sigma_c^2} c^2\right) \prod_{i = 1}^n \left(y_i 1_{(-\infty,
+z_i)}(c) + (1 - y_i) 1_{(-\infty, z_i)^C}(c)\right) 1_{\{0, 1\}}(y_i) =
+\\
+        &amp; = \operatorname{exp}\left(-\frac{1}{2}
+\frac{1}{\sigma_c^2} c^2\right) \prod_{{i = 1, \dots, n \,|\,y_i = 0}}
+1_{(-\infty, z_i)}(c) \cdot \prod_{{i = 1, \dots, n \,|\,y_i = 1}}
+1_{[z_i, +\infty)}(c) = \\
+        &amp; = \operatorname{exp}\left(-\frac{1}{2}
+\frac{1}{\sigma_c^2} c^2\right) 1_{(-\infty, \, \min\left(z_i \,|\,i \in
+\{1, \dots, n\}, y_i = 0\right))}(c) 1_{[\max\left(z_i \,|\,i \in \{1,
+\dots, n\}, y_i = 1\right), \, +\infty)}(c),
+    \end{align*}\]</span> where from the 1 to the 2 line we used <span class="math inline">\(\left(Y_i \,|\,c, z_i\right)_{i = 1}^n\)</span>
+independent, identically distributed r.v.’s. <br> More compactly,
+defining <span class="math display">\[\begin{align*}
+        a_n &amp; \stackrel{\text{def}}{=}\max\left(z_i \,|\,i \in \{1,
+\dots, n\}, y_i = 1\right) \text{ and } \\
+        b_n &amp; \stackrel{\text{def}}{=}\min\left(z_i \,|\,i \in \{1,
+\dots, n\}, y_i = 0\right),
+    \end{align*}\]</span> one has <span class="math display">\[
+        p(c \,|\,y_{1:n}, z_{1:n}, \beta) \propto
+\operatorname{exp}\left(-\frac{1}{2} \frac{1}{\sigma_c^2} c^2\right)
+1_{[a_n, b_n)}(c).
+    \]</span> First of all we have to observe that the indicator
+function constrains <span class="math inline">\(c \in [a_n,
+b_n)\)</span>, but it is equivalent to <span class="math inline">\(c \in
+(a_n, b_n)\)</span> because our <span class="math inline">\(p(c
+\,|\,y_{1:n}, z_{1:n}, \beta)\)</span> is a density function with
+respect to the lebesgue measure on <span class="math inline">\(\mathbb{R}\)</span> so each point has measure
+<span class="math inline">\(0\)</span> (so does <span class="math inline">\(\{a_n\}\)</span>). <br> Then, let us observe that
+this conditional density is composed by the kernel of a gaussian
+(evaluated in <span class="math inline">\(c\)</span>) multiplied by an
+indicator function (also evaluated in <span class="math inline">\(c\)</span>), which constrains the domain to an
+interval (not necessarily limited, possibly <span class="math inline">\(a_n = -\infty\)</span> or <span class="math inline">\(b_n = + \infty\)</span>). <br> So completing the
+function <span class="math inline">\(\operatorname{exp}\left(-\frac{1}{2}
+\frac{1}{\sigma_c^2} c^2\right) 1_{(a_n, b_n)}(c)\)</span> to a density
+one obtains <span class="math display">\[\begin{gather*}
+        p(c \,|\,y_{1:n}, z_{1:n}, \beta) = \frac{1}{\displaystyle
+\Phi\left(\frac{b_n}{\sigma_c}\right) -
+\Phi\left(\frac{a_n}{\sigma_c}\right)} \frac{1}{\sqrt{2 \pi \sigma_c^2}}
+\operatorname{exp}\left(-\frac{1}{2} \frac{1}{\sigma_c^2} c^2\right)
+1_{(a_n, b_n)}(c) \\
+        \Downarrow \\
+        c \,|\,y_{1:n}, z_{1:n}, \beta \sim
+\mathcal{T}\mathcal{N}_{(a_n, b_n)}\left(0,\sigma_c^2\right).
+    \end{gather*}\]</span></p>
 </div>
 </div>
 <div class="footnotes footnotes-end-of-document">
