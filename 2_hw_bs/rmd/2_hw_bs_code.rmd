@@ -212,14 +212,14 @@ So we can write explicitly
         p(c \given y_{1:n}, z_{1:n}, \beta) & \propto p(y_{1:n} \given c, z_{1:n}) p(c) = \\
         & = \prod_{i = 1}^n p(y_i \given c, z_i) p(c) \propto \\
         & \propto \exp{-\frac{1}{2} \frac{1}{\sigma_c^2} c^2} \prod_{i = 1}^n \left(y_i `r indicator()`_{(-\infty, z_i)}(c) + (1 - y_i) `r indicator()`_{(-\infty, z_i)^C}(c)\right) `r indicator()`_{\{0, 1\}}(y_i) = \\
-		& = \exp{-\frac{1}{2} \frac{1}{\sigma_c^2} c^2} \prod_{{i = 1, \dots, n \given y_i = 0}} `r indicator()`_{(-\infty, z_i)}(c) \cdot \prod_{{i = 1, \dots, n \given y_i = 1}} `r indicator()`_{[z_i, +\infty)}(c) = \\
-		& = \exp{-\frac{1}{2} \frac{1}{\sigma_c^2} c^2} `r indicator()`_{(-\infty, \, \min\left(z_i \given i \in \{1, \dots, n\}, y_i = 0\right))}(c) `r indicator()`_{[\max\left(z_i \given i \in \{1, \dots, n\}, y_i = 1\right), \, +\infty)}(c),
+		& = \exp{-\frac{1}{2} \frac{1}{\sigma_c^2} c^2} \prod_{{i = 1, \dots, n \given y_i = 1}} `r indicator()`_{(-\infty, z_i)}(c) \cdot \prod_{{i = 1, \dots, n \given y_i = 0}} `r indicator()`_{[z_i, +\infty)}(c) = \\
+		& = \exp{-\frac{1}{2} \frac{1}{\sigma_c^2} c^2} `r indicator()`_{(-\infty, \, \min\left(z_i \given i \in \{1, \dots, n\}, y_i = 1\right))}(c) `r indicator()`_{[\max\left(z_i \given i \in \{1, \dots, n\}, y_i = 0\right), \, +\infty)}(c),
     \end{align*}
 where from the 1\ts{st} to the 2\ts{nd} line we used $\left(Y_i \given c, z_i\right)_{i = 1}^n$ independent, identically distributed r.v.'s. `r newline()`
 More compactly, defining 
 	\begin{align*}
-		a_n & \deq \max\left(z_i \given i \in \{1, \dots, n\}, y_i = 1\right) \text{ and } \\
-		b_n & \deq \min\left(z_i \given i \in \{1, \dots, n\}, y_i = 0\right),
+		a_n & \deq \max\left(z_i \given i \in \{1, \dots, n\}, y_i = 0\right) \text{ and } \\
+		b_n & \deq \min\left(z_i \given i \in \{1, \dots, n\}, y_i = 1\right),
 	\end{align*}
 one has 
 	\[
