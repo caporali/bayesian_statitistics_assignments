@@ -11,7 +11,7 @@
 
 <meta name="author" content="Francesco Caporali, Isabel Muzio" />
 
-<meta name="date" content="2022-11-15" />
+<meta name="date" content="2022-11-16" />
 
 <title>Assignment 2</title>
 
@@ -352,7 +352,7 @@ display: none;
 
 <h1 class="title toc-ignore">Assignment 2</h1>
 <h4 class="author">Francesco Caporali, Isabel Muzio</h4>
-<h4 class="date">15 November 2022</h4>
+<h4 class="date">16 November 2022</h4>
 
 </div>
 
@@ -426,7 +426,9 @@ y_i) \mathbb{P}\left(\{Z_i &gt; c\}^C\right)\right) 1_{\{0, 1\}}(y_i),
       \end{aligned}
   \end{gather*}\]</span> hence <span class="math inline">\(Y_i \sim
 \operatorname{Bernoulli}\left(\mathbb{P}\left(Z_i &gt;
-c\right)\right)\)</span>. <br> It follows that, conditionally on <span class="math inline">\(Z_i, c\)</span>, the r.v. <span class="math inline">\(Y_i\)</span> is no more random and it holds<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> <span class="math display">\[
+c\right)\right)\)</span>. <br> It follows that, conditionally on <span class="math inline">\(Z_i, c\)</span>, the r.v. <span class="math inline">\(Y_i\)</span> is no more <i>random</i> and it
+holds<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>
+<span class="math display">\[
       p(y_i \,|\,c, z_i) = \left(y_i 1_{(-\infty, z_i)}(c) + (1 - y_i)
 1_{(-\infty, z_i)^C}(c)\right) 1_{\{0, 1\}}(y_i).
   \]</span></li>
@@ -456,11 +458,11 @@ c) p(\beta \,|\,c) \propto \\
 = 1}^{n} x_i^2 + \sum_{i = 1}^{n} z_i^2 - 2 \beta \sum_{i = 1}^{n} x_i
 z_i + \beta^2 \frac{1}{\sigma_\beta^2} \right)\right) = \\
         &amp; = \operatorname{exp}\Bigg(- \underbrace{\left(\sum_{i =
-1}^{n} x_i^2 +
-\frac{1}{\sigma_\beta^2}\right)}_{\stackrel{\text{def}}{=}(\sigma_{\beta,
-n}^2)^{-1}} \frac{\beta^2}{2} + \underbrace{\left(\sum_{i = 1}^{n} x_i
-z_i \right)}_{\displaystyle \stackrel{\text{def}}{=}\frac{\mu_{\beta,
-n}}{\sigma_{\beta, n}^2}} \beta \Bigg) ,
+1}^{n} x_i^2 + \frac{1}{\sigma_\beta^2}\right)}_{\displaystyle
+\stackrel{\text{def}}{=}(\sigma_{\beta, n}^2)^{-1}} \frac{\beta^2}{2} +
+\underbrace{\left(\sum_{i = 1}^{n} x_i z_i \right)}_{\displaystyle
+\stackrel{\text{def}}{=}\frac{\mu_{\beta, n}}{\sigma_{\beta, n}^2}}
+\beta \Bigg) ,
     \end{align*}\]</span> where from the 1 to the 2 line we used <span class="math inline">\(\left(Z_i \,|\,\beta\right)_{i = 1}^n\)</span>
 independent, identically distributed r.v.’s. <br> So we can conclude
 that <span class="math display">\[\begin{gather*}
@@ -486,9 +488,9 @@ x_i z_i \right)
 constrained normal density, i.e. proportional to a normal density but
 constrained to lie in an interval. Similarly, show that <span class="math inline">\(p(z_i \,|\,y_{1:n}, z_{-i}, \beta, c)\)</span> is
 proportional to a normal density but constrained to be either above
-<span class="math inline">\(c\)</span> or below <span class="math inline">\(c\)</span>, depending on <span class="math inline">\(y_i\)</span>. <br> Hint: A constrained, or
-truncated, normal random variable <span class="math inline">\(V\)</span>
-is obtained by restricting a normally distributed random variable <span class="math inline">\(\mathcal{N}\left(\mu,\tau^2\right)\)</span> to lie
+<span class="math inline">\(c\)</span> or below <span class="math inline">\(c\)</span>, depending on <span class="math inline">\(y_i\)</span>. <br> <strong>Hint:</strong> A
+constrained, or truncated, normal random variable <span class="math inline">\(V\)</span> is obtained by restricting a normally
+distributed random variable <span class="math inline">\(\mathcal{N}\left(\mu,\tau^2\right)\)</span> to lie
 in an interval <span class="math inline">\((a, b)\)</span>, with
 possibly <span class="math inline">\(a = -\infty\)</span> or <span class="math inline">\(b = +\infty\)</span>. We use the notation <span class="math inline">\(V \sim
 \mathcal{T}\mathcal{N}_{(a,b)}\left(\mu,\tau^2\right)\)</span>. It
@@ -534,20 +536,20 @@ c) p(c \,|\,\beta) \propto \\
 z_i)}(c) + (1 - y_i) 1_{(-\infty, z_i)^C}(c)\right) 1_{\{0, 1\}}(y_i) =
 \\
         &amp; = \operatorname{exp}\left(-\frac{1}{2}
-\frac{1}{\sigma_c^2} c^2\right) \prod_{{i = 1, \dots, n \,|\,y_i = 0}}
-1_{(-\infty, z_i)}(c) \cdot \prod_{{i = 1, \dots, n \,|\,y_i = 1}}
+\frac{1}{\sigma_c^2} c^2\right) \prod_{{i = 1, \dots, n \,|\,y_i = 1}}
+1_{(-\infty, z_i)}(c) \cdot \prod_{{i = 1, \dots, n \,|\,y_i = 0}}
 1_{[z_i, +\infty)}(c) = \\
         &amp; = \operatorname{exp}\left(-\frac{1}{2}
 \frac{1}{\sigma_c^2} c^2\right) 1_{(-\infty, \, \min\left(z_i \,|\,i \in
-\{1, \dots, n\}, y_i = 0\right))}(c) 1_{[\max\left(z_i \,|\,i \in \{1,
-\dots, n\}, y_i = 1\right), \, +\infty)}(c),
+\{1, \dots, n\}, y_i = 1\right))}(c) 1_{[\max\left(z_i \,|\,i \in \{1,
+\dots, n\}, y_i = 0\right), \, +\infty)}(c),
     \end{align*}\]</span> where from the 1 to the 2 line we used <span class="math inline">\(\left(Y_i \,|\,c, z_i\right)_{i = 1}^n\)</span>
 independent, identically distributed r.v.’s. <br> More compactly,
 defining <span class="math display">\[\begin{align*}
         a_n &amp; \stackrel{\text{def}}{=}\max\left(z_i \,|\,i \in \{1,
-\dots, n\}, y_i = 1\right) \text{ and } \\
+\dots, n\}, y_i = 0\right) \text{ and } \\
         b_n &amp; \stackrel{\text{def}}{=}\min\left(z_i \,|\,i \in \{1,
-\dots, n\}, y_i = 0\right),
+\dots, n\}, y_i = 1\right),
     \end{align*}\]</span> one has <span class="math display">\[
         p(c \,|\,y_{1:n}, z_{1:n}, \beta) \propto
 \operatorname{exp}\left(-\frac{1}{2} \frac{1}{\sigma_c^2} c^2\right)
@@ -559,7 +561,7 @@ b_n)\)</span>, but it is equivalent to <span class="math inline">\(c \in
 \,|\,y_{1:n}, z_{1:n}, \beta)\)</span> is a density function with
 respect to the lebesgue measure on <span class="math inline">\(\mathbb{R}\)</span> so each point has measure
 <span class="math inline">\(0\)</span> (so does <span class="math inline">\(\{a_n\}\)</span>). <br> Then, let us observe that
-this conditional density is composed by the kernel of a gaussian
+this conditional density is proportional to the kernel of a gaussian
 (evaluated in <span class="math inline">\(c\)</span>) multiplied by an
 indicator function (also evaluated in <span class="math inline">\(c\)</span>), which constrains the domain to an
 interval (not necessarily limited, possibly <span class="math inline">\(a_n = -\infty\)</span> or <span class="math inline">\(b_n = + \infty\)</span>). <br> So completing the
@@ -575,6 +577,81 @@ one obtains <span class="math display">\[\begin{gather*}
         c \,|\,y_{1:n}, z_{1:n}, \beta \sim
 \mathcal{T}\mathcal{N}_{(a_n, b_n)}\left(0,\sigma_c^2\right).
     \end{gather*}\]</span></p>
+<p>Similarly <span class="math display">\[\begin{align*}
+        p(z_i \,|\,y_{1:n}, z_{-i}, \beta, c) &amp; = \frac{p(z_i,
+y_{1:n}, z_{-i}, \beta, c)}{p(y_{1:n}, z_{-i}, \beta, c)} \frac{p(z_i,
+z_{-i}, \beta, c)}{p(z_i, z_{-i}, \beta, c)} \frac{p(z_i, \beta,
+c)}{p(z_i, \beta, c)} \frac{p(\beta, c)}{p(\beta, c)} \propto \\
+        &amp; \propto \frac{p(z_i, y_{1:n}, z_{-i}, \beta, c)}{p(z_i,
+z_{-i}, \beta, c)} \frac{p(z_i, z_{-i}, \beta, c)}{p(z_i, \beta, c)}
+\frac{p(z_i, \beta, c)}{p(\beta, c)} = \\
+        &amp; = p(y_{1:n} \,|\,z_{1:n}, \beta, c) p(z_{-i} \,|\,z_i,
+\beta, c) p(z_i \,|\,\beta, c) \propto \\
+        &amp; \propto p(y_{1:n} \,|\,z_{1:n}, c) p(z_i \,|\,\beta)
+\propto \\
+        &amp; \propto \prod_{j = 1}^n p(y_j \,|\,z_j, c) p(z_i
+\,|\,\beta) \propto \\
+        &amp; \propto p(y_i \,|\,z_i, c) p(z_i \,|\,\beta) \propto \\
+        &amp; \propto \Big(y_i \underbrace{1_{(-\infty,
+z_i)}(c)}_{\displaystyle = 1_{(c, +\infty)}(z_i)} + (1 - y_i)
+\underbrace{1_{(-\infty, z_i)^C}(c)}_{\displaystyle = 1_{(-\infty,
+c]}(z_i)}\Big) 1_{\{0, 1\}}(y_i) \operatorname{exp}\left(-\frac{1}{2}
+(z_i - x_i \beta)^2\right) = \\
+        &amp; =
+            \begin{cases}
+                \displaystyle 1_{(c, +\infty)}(z_i)
+\operatorname{exp}\left(-\frac{1}{2} (z_i - x_i \beta)^2\right) &amp;
+\text{ if } y_i = 1 \\
+                \displaystyle 1_{(-\infty, c]}(z_i)
+\operatorname{exp}\left(-\frac{1}{2} (z_i - x_i \beta)^2\right) &amp;
+\text{ if } y_i = 0 \\
+            \end{cases}.
+    \end{align*}\]</span> As before, this conditional density is
+proportional to the kernel of a gaussian (evaluated in <span class="math inline">\(z_i\)</span>) multiplied by an indicator function
+(also evaluated in <span class="math inline">\(z_i\)</span>) which
+constrains the domain to be <span class="math inline">\((c,
++\infty)\)</span> or <span class="math inline">\((-\infty, c]\)</span>
+(equivalently <span class="math inline">\((-\infty, c)\)</span>, with
+the same motivation given above) depending on <span class="math inline">\(y_i\)</span>. <br> In particular, completing to a
+density what we found <span class="math display">\[\begin{gather*}
+        p(z_i \,|\,y_{1:n}, z_{-i}, \beta, c) =
+        \begin{cases}
+            \displaystyle \frac{1}{1 - \Phi(c - x_i\beta)}
+\frac{1}{\sqrt{2 \pi}} \operatorname{exp}\left(-\frac{1}{2} (z_i - x_i
+\beta)^2\right) 1_{(c, +\infty)}(z_i) &amp; \text{ if } y_i = 1 \\
+            \displaystyle \frac{1}{\Phi(c - x_i\beta)} \frac{1}{\sqrt{2
+\pi}} \operatorname{exp}\left(-\frac{1}{2} (z_i - x_i \beta)^2\right)
+1_{(-\infty, c)}(z_i) &amp; \text{ if } y_i = 0 \\
+        \end{cases} \\
+        \Downarrow \\
+        Z_i \,|\,y_{1:n}, z_{-i}, \beta, c \sim
+        \begin{cases}
+            \displaystyle \mathcal{T}\mathcal{N}_{(c, +\infty)}\left(x_i
+\beta,1\right) \text{ if } y_i = 1 \\
+            \displaystyle\mathcal{T}\mathcal{N}_{(-\infty, c)}\left(x_i
+\beta,1\right) \text{ if } y_i = 0 \\
+        \end{cases}.
+    \end{gather*}\]</span> </p>
+</div>
+<div id="point-c." class="section level2">
+<h2>Point c.</h2>
+<p>Letting <span class="math inline">\(\sigma_\beta^2 = \sigma_c^2 =
+16\)</span>, implement a Gibbs sampling scheme that approximates the
+joint posterior distribution of <span class="math inline">\(Z_{1:n},
+\beta\)</span> and <span class="math inline">\(c\)</span>. After a
+burnin of <span class="math inline">\(1000\)</span>, run the Gibbs
+sampler long enough so that the effective sample sizes of all unknown
+parameters are greater than <span class="math inline">\(1000\)</span>
+(including the <span class="math inline">\(Z_i\)</span>’s). Compute the
+autocorrelation function of the parameters and discuss the mixing of the
+Markov chain.</p>
+</div>
+<div id="point-d." class="section level2">
+<h2>Point d.</h2>
+<p>Obtain a <span class="math inline">\(95\%\)</span> posterior credible
+interval for <span class="math inline">\(\beta\)</span>, as well as
+<span class="math inline">\(\mathbb{P}\left(\beta &gt; 0
+\,|\,y_{1:n}\right)\)</span>.</p>
 </div>
 </div>
 <div class="footnotes footnotes-end-of-document">
