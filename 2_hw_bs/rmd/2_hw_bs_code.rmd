@@ -3,7 +3,6 @@ title: "Assignment 2"
 author: "Francesco Caporali, Isabel Muzio"
 date: '`r Sys.setlocale("LC_TIME", "English"); format(Sys.time(), "%d %B %Y")`'
 output:
-    html_document: default
     pdf_document:
         latex_engine: pdflatex
         includes:
@@ -17,11 +16,11 @@ output:
             amsmath: null
             amsfonts: null
             amsthm: null
+    html_document: default
 documentclass: article
 fontsize: 11pt
 geometry: margin = 2cm
 header-includes:
-- \newcommand{\gal}[1]{\operatorname{Galenshore}\left(#1\right)}
 - \newcommand{\indicator}{\mathds{1}}
 - \newcommand{\mean}[1]{\mathbb{E}\left[#1\right]}
 - \newcommand{\var}[1]{\operatorname{Var}\left(#1\right)}
@@ -31,11 +30,16 @@ header-includes:
 - \newcommand{\real}{\mathbb{R}}
 - \newcommand{\prob}[1]{\mathbb{P}\left(#1\right)}
 - \newcommand{\deq}{\stackrel{\text{def}}{=}}
+- \newcommand{\given}{\,|\,}
 - \newcommand{\convp}{\xrightarrow{\prob}}
+- \newcommand{\simiid}{\stackrel{\mathclap{\normalfont\mbox{\scriptsize{iid}}}}{\sim}}
 - \renewcommand{\epsilon}{\varepsilon}
+- \newcommand{\ts}[1]{\textsuperscript{#1}}
 - \renewcommand{\labelitemi}{\normalfont\bfseries\textendash}
-- \newcommand{\Gam}{\textsc{Gamma}}
-- \newcommand{\ssn}[2]{\operatorname{SS}\left(#1_{1:#2}\right)}
+- \newcommand{\normal}[2]{\mathcal{N}\left(#1,#2\right)}
+- \newcommand{\bernoulli}[1]{\operatorname{Bernoulli}\left(#1\right)}
+- \renewcommand{\exp}[1]{\operatorname{exp}\left(#1\right)}
+- \newcommand{\qed}{\hfill \ensuremath{\Box}}
 ---
 ```{r setup, include = FALSE}
 
@@ -55,6 +59,13 @@ indicator <- function() {
         sprintf("1")
     else sprintf("1")
 } #`r indicator()`
+simiid <- function() {
+    if (knitr::is_latex_output())
+        sprintf("\\simiid")
+    else if (knitr::is_html_output())
+        sprintf("\\sim")
+    else sprintf("\\sim")
+} #`r simiid()`
 newline <- function() {
     if (knitr::is_latex_output())
         sprintf("\\")
@@ -83,13 +94,105 @@ end_rcases <- function() {
         sprintf("\\end{array} \\hspace{0.3cm}")
     else ""
 } # `r end_rcases()`
+cancel <- function(x) {
+    if (knitr::is_latex_output())
+        sprintf("\\cancel{%s}", x)
+    else if (knitr::is_html_output())
+        sprintf("%s", x)
+    else sprintf("%s", x)
+} # `r cancel("x")`
 
 library(ggplot2)
 ```
 
-# Question 1
+# Question 1: Probit regression (Hoff 6.3)
+
+A panel study followed $n = 25$ married couples over a period of five years. One item of interest is the relationship between divorce rates and the various characteristics of the couples. For example, the researchers would like to model the probability of divorce as a function of age differential, recorded as the man's age minus the woman's age. The data can be found in the file \texttt{divorce.RData}. We will model these data with probit regression, in which a binary variable $Y_i$ is described in terms of an explanatory variable $x_i$ via the following latent variable model: 
+\begin{align*}
+    Z_i & = \beta x_i + \epsilon_i \\
+    Y_i & = `r indicator()`_{(c, +\infty)}(Z_i),
+\end{align*}
+where $\beta$ and $c$ are unknown coefficients, $\epsilon_1, \dots, \epsilon_n `r simiid()` \normal{0}{1}$ and $`r indicator()`_{(c, +\infty)}(z) = 1$ if $z > c$ and equals zero otherwise. In the following, since the covariates $x_i$ are known, they will be treated as constants and so not
+explicitly written in the conditioning part.
 
 ## Point a.
+
+Assuming $\beta \sim \normal{0}{\sigma_\beta^2}$, obtain the full conditional distribution $p(\beta \given y_{1:n}, z_{1:n}, c)$. 
+
+\medskip
+
+First of all let us write explicitly the conditional distributions which we can deduce from the text:
+
+- $\forall i = 1, \dots, n$ we know $p(z_i \given \beta)$: 
+    \begin{gather*}
+        Z_i(\omega) \given \beta = \beta x_i + \epsilon_i(\omega) \sim \beta x_i + \normal{0}{1} \sim \normal{\beta x_i}{1} \implies Z_i \given \beta \sim \normal{\beta x_i}{1} \\
+        \Downarrow \\
+        p(z_i \given \beta) = \frac{1}{\sqrt{2\pi}} e^{-\frac{1}{2} (z_i - x_i \beta)^2};
+    \end{gather*}
+- $\forall i = 1, \dots, n$ we know $p(y_i \given c, z_i)$: 
+    \begin{gather*}
+        Y_i(\omega) = `r indicator()`_{(c, +\infty)}(Z_i) = 
+        \begin{cases}
+            1 & \text{ if } Z_i > c \\
+            0 & \text{ otherwise}
+        \end{cases} \\
+        \Downarrow \\
+        \begin{aligned}
+            p(y_i) & = \prob{Y_i = y_i} = \prob{`r indicator()`_{(c, +\infty)}(Z_i) = y_i} = \\
+            & = \begin{cases}
+                    \prob{`r indicator()`_{(c, +\infty)}(Z_i) = 1} & \text{ if } y_i = 1 \\
+                    \prob{`r indicator()`_{(c, +\infty)}(Z_i) = 0} & \text{ if } y_i = 0 \\
+                    0 & \text{ otherwise}
+                \end{cases} = \\
+            & = \begin{cases}
+                    \prob{\{Z_i > c\}} & \text{ if } y_i = 1 \\
+                    \prob{\{Z_i > c\}^C} & \text{ if } y_i = 0 \\
+                    0 & \text{ otherwise}
+                \end{cases} = \\
+            & = \left(y_i \prob{\{Z_i > c\}} + (1 - y_i) \prob{\{Z_i > c\}^C}\right) `r indicator()`_{\{0, 1\}}(y_i),
+        \end{aligned}
+    \end{gather*}
+    hence $Y_i \sim \bernoulli{\prob{Z_i > c}}$. `r newline()`
+    It follows that, conditionally on $Z_i, c$, the r.v. $Y_i$ is no more `r textit("random")` and it holds[^1]
+    \[
+        p(y_i \given c, z_i) = \left(y_i `r indicator()`_{(-\infty, z_i)}(c) + (1 - y_i) `r indicator()`_{(-\infty, z_i)^C}(c)\right) `r indicator()`_{\{0, 1\}}(y_i).
+    \]
+
+    [^1]: We replace $\prob{\{z_i > c\}}$ with $`r indicator()`_{(-\infty, z_i)}(c)$ because we will use this characterization afterwards.
+
+The full conditional distribution $p(\beta \given y_{1:n}, z_{1:n}, c)$ can be obtained just from $p(z_i \given \beta)$, indeed
+    \begin{align*}
+        p(\beta \given y_{1:n}, z_{1:n}, c) & = \frac{p(\beta, y_{1:n}, z_{1:n}, c)}{p(y_{1:n}, z_{1:n}, c)} \frac{p(\beta, z_{1:n}, c)}{p(\beta, z_{1:n}, c)} \frac{p(\beta, c)}{p(\beta, c)} \frac{p(c)}{p(c)} \propto \\
+        & \propto \frac{p(\beta, y_{1:n}, z_{1:n}, c)}{p(\beta, z_{1:n}, c)} \frac{p(\beta, z_{1:n}, c)}{p(\beta, c)} \frac{p(\beta, c)}{p(c)} = \\
+        & = p(y_{1:n} \given `r cancel("\\beta")`, c, z_{1:n}) p(z_{1:n} \given \beta, `r cancel("c")`) p(\beta \given `r cancel("c")`) \propto \\
+        & \propto p(z_{1:n} \given \beta) p(\beta).
+    \end{align*}
+So we can write explicitly
+    \begin{align*}
+        p(\beta \given y_{1:n}, z_{1:n}, c) & \propto p(z_{1:n} \given \beta) p(\beta) = \\
+        & = \prod_{i = 1}^n p(z_i \given \beta) p(\beta) \propto \\
+        & \propto \exp{-\frac{1}{2} \sum_{i = 1}^{n} (z_i - x_i \beta)^2} \exp{-\frac{1}{2} \frac{1}{\sigma_\beta^2} \beta^2} = \\
+        & = \exp{-\frac{1}{2} \left(\beta \sum_{i = 1}^{n} x_i^2 + `r cancel("\\sum_{i = 1}^{n} z_i^2")` - 2 \beta \sum_{i = 1}^{n} x_i z_i + \beta^2 \frac{1}{\sigma_\beta^2} \right)} = \\
+        & = \operatorname{exp}\Bigg(- \underbrace{\left(\sum_{i = 1}^{n} x_i^2 + \frac{1}{\sigma_\beta^2}\right)}_{\deq (\sigma_{\beta, n}^2)^{-1}} \frac{\beta^2}{2} + \underbrace{\left(\sum_{i = 1}^{n} x_i z_i \right)}_{\displaystyle \deq \frac{\mu_{\beta, n}}{\sigma_{\beta, n}^2}} \beta \Bigg) ,
+    \end{align*}
+where from the 1\ts{st} to the 2\ts{nd} line we used $\left(Z_i \given \beta\right)_{i = 1}^n$ independent, identically distributed r.v.'s. `r newline()`
+So we can conclude that 
+    \begin{gather*}
+        \beta \given y_{1:n}, z_{1:n}, c \sim \normal{\mu_{\beta, n}}{\sigma_{\beta, n}^2} \text{ with } 
+        \begin{cases}
+            \sigma_{\beta, n}^2 = \left(\sum_{i = 1}^{n} x_i^2 + \frac{1}{\sigma_\beta^2}\right)^{-1} \\
+            \mu_{\beta, n} = \sigma_{\beta, n}^2 \left(\sum_{i = 1}^{n} x_i z_i \right)
+        \end{cases} \\
+        \Downarrow \\
+        p(\beta \given y_{1:n}, z_{1:n}, c) = \frac{1}{\sqrt{2\pi\sigma_{\beta, n}^2}} \exp{-\frac{1}{2 \sigma_{\beta, n}^2} (\beta - \mu_{\beta, n})^2}.
+    \end{gather*}
+\qed
+
+## Point b.
+
+Assuming $c \sim \normal{0}{\sigma_c^2}$, show that $p(c \given y_{1:n}, z_{1:n}, \beta)$ is a constrained normal density, i.e. proportional to a normal density but constrained to lie in an interval. Similarly, show that $p(z_i | y_{1:n}, z_{-i}, \beta, c)$ is proportional to a normal density but constrained to be either above $c$ or below $c$, depending on $y_i$.
+
+\medskip
 
 \scriptsize
 ```{r}

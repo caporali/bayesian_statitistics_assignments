@@ -11,7 +11,7 @@
 
 <meta name="author" content="Francesco Caporali, Isabel Muzio" />
 
-<meta name="date" content="2022-11-02" />
+<meta name="date" content="2022-11-15" />
 
 <title>Assignment 2</title>
 
@@ -299,23 +299,17 @@ overflow-y: auto;
 border: 1px solid #ddd;
 border-radius: 4px;
 }
-.tabset-dropdown > .nav-tabs > li.active:before {
-content: "";
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+content: "\e259";
 font-family: 'Glyphicons Halflings';
 display: inline-block;
 padding: 10px;
 border-right: 1px solid #ddd;
 }
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
-content: "";
-border: none;
-}
-.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
-content: "";
+content: "\e258";
 font-family: 'Glyphicons Halflings';
-display: inline-block;
-padding: 10px;
-border-right: 1px solid #ddd;
+border: none;
 }
 .tabset-dropdown > .nav-tabs > li.active {
 display: block;
@@ -358,17 +352,148 @@ display: none;
 
 <h1 class="title toc-ignore">Assignment 2</h1>
 <h4 class="author">Francesco Caporali, Isabel Muzio</h4>
-<h4 class="date">02 November 2022</h4>
+<h4 class="date">15 November 2022</h4>
 
 </div>
 
 
-<div id="question-1" class="section level1">
-<h1>Question 1</h1>
+<div id="question-1-probit-regression-hoff-6.3" class="section level1">
+<h1>Question 1: Probit regression (Hoff 6.3)</h1>
+<p>A panel study followed <span class="math inline">\(n = 25\)</span>
+married couples over a period of five years. One item of interest is the
+relationship between divorce rates and the various characteristics of
+the couples. For example, the researchers would like to model the
+probability of divorce as a function of age differential, recorded as
+the man’s age minus the woman’s age. The data can be found in the file .
+We will model these data with probit regression, in which a binary
+variable <span class="math inline">\(Y_i\)</span> is described in terms
+of an explanatory variable <span class="math inline">\(x_i\)</span> via
+the following latent variable model: <span class="math display">\[\begin{align*}
+    Z_i &amp; = \beta x_i + \varepsilon_i \\
+    Y_i &amp; = 1_{(c, +\infty)}(Z_i),
+\end{align*}\]</span> where <span class="math inline">\(\beta\)</span>
+and <span class="math inline">\(c\)</span> are unknown coefficients,
+<span class="math inline">\(\varepsilon_1, \dots, \varepsilon_n \sim
+\mathcal{N}\left(0,1\right)\)</span> and <span class="math inline">\(1_{(c, +\infty)}(z) = 1\)</span> if <span class="math inline">\(z &gt; c\)</span> and equals zero otherwise. In
+the following, since the covariates <span class="math inline">\(x_i\)</span> are known, they will be treated as
+constants and so not explicitly written in the conditioning part.</p>
 <div id="point-a." class="section level2">
 <h2>Point a.</h2>
-
+<p>Assuming <span class="math inline">\(\beta \sim
+\mathcal{N}\left(0,\sigma_\beta^2\right)\)</span>, obtain the full
+conditional distribution <span class="math inline">\(p(\beta
+\,|\,y_{1:n}, z_{1:n}, c)\)</span>.</p>
+<p>First of all let us write explicitly the conditional distributions
+which we can deduce from the text:</p>
+<ul>
+<li><span class="math inline">\(\forall i = 1, \dots, n\)</span> we know
+<span class="math inline">\(p(z_i \,|\,\beta)\)</span>: <span class="math display">\[\begin{gather*}
+      Z_i(\omega) \,|\,\beta = \beta x_i + \varepsilon_i(\omega) \sim
+\beta x_i + \mathcal{N}\left(0,1\right) \sim \mathcal{N}\left(\beta
+x_i,1\right) \implies Z_i \,|\,\beta \sim \mathcal{N}\left(\beta
+x_i,1\right) \\
+      \Downarrow \\
+      p(z_i \,|\,\beta) = \frac{1}{\sqrt{2\pi}} e^{-\frac{1}{2} (z_i -
+x_i \beta)^2};
+  \end{gather*}\]</span></li>
+<li><span class="math inline">\(\forall i = 1, \dots, n\)</span> we know
+<span class="math inline">\(p(y_i \,|\,c, z_i)\)</span>: <span class="math display">\[\begin{gather*}
+      Y_i(\omega) = 1_{(c, +\infty)}(Z_i) =
+      \begin{cases}
+          1 &amp; \text{ if } Z_i &gt; c \\
+          0 &amp; \text{ otherwise}
+      \end{cases} \\
+      \Downarrow \\
+      \begin{aligned}
+          p(y_i) &amp; = \mathbb{P}\left(Y_i = y_i\right) =
+\mathbb{P}\left(1_{(c, +\infty)}(Z_i) = y_i\right) = \\
+          &amp; = \begin{cases}
+                  \mathbb{P}\left(1_{(c, +\infty)}(Z_i) = 1\right) &amp;
+\text{ if } y_i = 1 \\
+                  \mathbb{P}\left(1_{(c, +\infty)}(Z_i) = 0\right) &amp;
+\text{ if } y_i = 0 \\
+                  0 &amp; \text{ otherwise}
+              \end{cases} = \\
+          &amp; = \begin{cases}
+                  \mathbb{P}\left(\{Z_i &gt; c\}\right) &amp; \text{ if
+} y_i = 1 \\
+                  \mathbb{P}\left(\{Z_i &gt; c\}^C\right) &amp; \text{
+if } y_i = 0 \\
+                  0 &amp; \text{ otherwise}
+              \end{cases} = \\
+          &amp; = \left(y_i \mathbb{P}\left(\{Z_i &gt; c\}\right) + (1 -
+y_i) \mathbb{P}\left(\{Z_i &gt; c\}^C\right)\right) 1_{\{0, 1\}}(y_i),
+      \end{aligned}
+  \end{gather*}\]</span> hence <span class="math inline">\(Y_i \sim
+\operatorname{Bernoulli}\left(\mathbb{P}\left(Z_i &gt;
+c\right)\right)\)</span>. <br> It follows that, conditionally on <span class="math inline">\(Z_i, c\)</span>, the r.v. <span class="math inline">\(Y_i\)</span> is no more random and it holds<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> <span class="math display">\[
+      p(y_i \,|\,c, z_i) = \left(y_i 1_{(-\infty, z_i)}(c) + (1 - y_i)
+1_{(-\infty, z_i)^C}(c)\right) 1_{\{0, 1\}}(y_i).
+  \]</span></li>
+</ul>
+<p>The full conditional distribution <span class="math inline">\(p(\beta
+\,|\,y_{1:n}, z_{1:n}, c)\)</span> can be obtained just from <span class="math inline">\(p(z_i \,|\,\beta)\)</span>, indeed <span class="math display">\[\begin{align*}
+        p(\beta \,|\,y_{1:n}, z_{1:n}, c) &amp; = \frac{p(\beta,
+y_{1:n}, z_{1:n}, c)}{p(y_{1:n}, z_{1:n}, c)} \frac{p(\beta, z_{1:n},
+c)}{p(\beta, z_{1:n}, c)} \frac{p(\beta, c)}{p(\beta, c)}
+\frac{p(c)}{p(c)} \propto \\
+        &amp; \propto \frac{p(\beta, y_{1:n}, z_{1:n}, c)}{p(\beta,
+z_{1:n}, c)} \frac{p(\beta, z_{1:n}, c)}{p(\beta, c)} \frac{p(\beta,
+c)}{p(c)} = \\
+        &amp; = p(y_{1:n} \,|\,\beta, c, z_{1:n}) p(z_{1:n} \,|\,\beta,
+c) p(\beta \,|\,c) \propto \\
+        &amp; \propto p(z_{1:n} \,|\,\beta) p(\beta).
+    \end{align*}\]</span> So we can write explicitly <span class="math display">\[\begin{align*}
+        p(\beta \,|\,y_{1:n}, z_{1:n}, c) &amp; \propto p(z_{1:n}
+\,|\,\beta) p(\beta) = \\
+        &amp; = \prod_{i = 1}^n p(z_i \,|\,\beta) p(\beta) \propto \\
+        &amp; \propto \operatorname{exp}\left(-\frac{1}{2} \sum_{i =
+1}^{n} (z_i - x_i \beta)^2\right) \operatorname{exp}\left(-\frac{1}{2}
+\frac{1}{\sigma_\beta^2} \beta^2\right) = \\
+        &amp; = \operatorname{exp}\left(-\frac{1}{2} \left(\beta \sum_{i
+= 1}^{n} x_i^2 + \sum_{i = 1}^{n} z_i^2 - 2 \beta \sum_{i = 1}^{n} x_i
+z_i + \beta^2 \frac{1}{\sigma_\beta^2} \right)\right) = \\
+        &amp; = \operatorname{exp}\Bigg(- \underbrace{\left(\sum_{i =
+1}^{n} x_i^2 +
+\frac{1}{\sigma_\beta^2}\right)}_{\stackrel{\text{def}}{=}(\sigma_{\beta,
+n}^2)^{-1}} \frac{\beta^2}{2} + \underbrace{\left(\sum_{i = 1}^{n} x_i
+z_i \right)}_{\displaystyle \stackrel{\text{def}}{=}\frac{\mu_{\beta,
+n}}{\sigma_{\beta, n}^2}} \beta \Bigg) ,
+    \end{align*}\]</span> where from the 1 to the 2 line we used <span class="math inline">\(\left(Z_i \,|\,\beta\right)_{i = 1}^n\)</span>
+independent, identically distributed r.v.’s. <br> So we can conclude
+that <span class="math display">\[\begin{gather*}
+        \beta \,|\,y_{1:n}, z_{1:n}, c \sim \mathcal{N}\left(\mu_{\beta,
+n},\sigma_{\beta, n}^2\right) \text{ with }
+        \begin{cases}
+            \sigma_{\beta, n}^2 = \left(\sum_{i = 1}^{n} x_i^2 +
+\frac{1}{\sigma_\beta^2}\right)^{-1} \\
+            \mu_{\beta, n} = \sigma_{\beta, n}^2 \left(\sum_{i = 1}^{n}
+x_i z_i \right)
+        \end{cases} \\
+        \Downarrow \\
+        p(\beta \,|\,y_{1:n}, z_{1:n}, c) =
+\frac{1}{\sqrt{2\pi\sigma_{\beta, n}^2}}
+\operatorname{exp}\left(-\frac{1}{2 \sigma_{\beta, n}^2} (\beta -
+\mu_{\beta, n})^2\right).
+    \end{gather*}\]</span> </p>
 </div>
+<div id="point-b." class="section level2">
+<h2>Point b.</h2>
+<p>Assuming <span class="math inline">\(c \sim
+\mathcal{N}\left(0,\sigma_c^2\right)\)</span>, show that <span class="math inline">\(p(c \,|\,y_{1:n}, z_{1:n}, \beta)\)</span> is a
+constrained normal density, i.e. proportional to a normal density but
+constrained to lie in an interval. Similarly, show that <span class="math inline">\(p(z_i | y_{1:n}, z_{-i}, \beta, c)\)</span> is
+proportional to a normal density but constrained to be either above
+<span class="math inline">\(c\)</span> or below <span class="math inline">\(c\)</span>, depending on <span class="math inline">\(y_i\)</span>.</p>
+</div>
+</div>
+<div class="footnotes footnotes-end-of-document">
+<hr />
+<ol>
+<li id="fn1"><p>We replace <span class="math inline">\(\mathbb{P}\left(\{z_i &gt; c\}\right)\)</span>
+with <span class="math inline">\(1_{(-\infty, z_i)}(c)\)</span> because
+we will use this characterization afterwards.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+</ol>
 </div>
 
 
