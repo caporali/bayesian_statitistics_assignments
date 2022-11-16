@@ -398,9 +398,9 @@ x_i \beta)^2};
   \end{gather*}\]</span></li>
 <li><span class="math inline">\(\forall i = 1, \dots, n\)</span> we know
 <span class="math inline">\(p(y_i \,|\,c, z_i)\)</span>: <span class="math display">\[\begin{gather*}
-      Y_i(\omega) = 1_{(c, +\infty)}(Z_i) =
+      Y_i(\omega) = 1_{(c, +\infty)}(Z_i(\omega)) =
       \begin{cases}
-          1 &amp; \text{ if } Z_i &gt; c \\
+          1 &amp; \text{ if } Z_i(\omega) &gt; c \\
           0 &amp; \text{ otherwise}
       \end{cases} \\
       \Downarrow \\
@@ -454,9 +454,9 @@ c) p(\beta \,|\,c) \propto \\
         &amp; \propto \operatorname{exp}\left(-\frac{1}{2} \sum_{i =
 1}^{n} (z_i - x_i \beta)^2\right) \operatorname{exp}\left(-\frac{1}{2}
 \frac{1}{\sigma_\beta^2} \beta^2\right) = \\
-        &amp; = \operatorname{exp}\left(-\frac{1}{2} \left(\beta \sum_{i
-= 1}^{n} x_i^2 + \sum_{i = 1}^{n} z_i^2 - 2 \beta \sum_{i = 1}^{n} x_i
-z_i + \beta^2 \frac{1}{\sigma_\beta^2} \right)\right) = \\
+        &amp; = \operatorname{exp}\left(-\frac{1}{2} \left(\beta^2
+\sum_{i = 1}^{n} x_i^2 + \sum_{i = 1}^{n} z_i^2 - 2 \beta \sum_{i =
+1}^{n} x_i z_i + \beta^2 \frac{1}{\sigma_\beta^2} \right)\right) = \\
         &amp; = \operatorname{exp}\Bigg(- \underbrace{\left(\sum_{i =
 1}^{n} x_i^2 + \frac{1}{\sigma_\beta^2}\right)}_{\displaystyle
 \stackrel{\text{def}}{=}(\sigma_{\beta, n}^2)^{-1}} \frac{\beta^2}{2} +
@@ -553,9 +553,13 @@ defining <span class="math display">\[\begin{align*}
     \end{align*}\]</span> one has <span class="math display">\[
         p(c \,|\,y_{1:n}, z_{1:n}, \beta) \propto
 \operatorname{exp}\left(-\frac{1}{2} \frac{1}{\sigma_c^2} c^2\right)
-1_{[a_n, b_n)}(c).
-    \]</span> First of all we have to observe that the indicator
-function constrains <span class="math inline">\(c \in [a_n,
+1_{[a_n, b_n)}(c),
+    \]</span> where, for a good definition, we are using <span class="math inline">\(a_n &lt; b_n\)</span> which is clearly true
+because, if <span class="math inline">\(a_n, b_n\)</span> are finite,
+<span class="math inline">\(\forall i, j \in \{1, \dots, n\}\)</span>
+such that <span class="math inline">\(y_i = 0\)</span>, <span class="math inline">\(y_j = 1\)</span>, <span class="math inline">\((-\infty, c] \ni z_i &lt; z_j \in (c,
++\infty)\)</span>. <br> First of all we have to observe that the
+indicator function constrains <span class="math inline">\(c \in [a_n,
 b_n)\)</span>, but it is equivalent to <span class="math inline">\(c \in
 (a_n, b_n)\)</span> because our <span class="math inline">\(p(c
 \,|\,y_{1:n}, z_{1:n}, \beta)\)</span> is a density function with

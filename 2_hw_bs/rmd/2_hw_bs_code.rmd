@@ -139,9 +139,9 @@ First of all let us write explicitly the conditional distributions which we can 
     \end{gather*}
 - $\forall i = 1, \dots, n$ we know $p(y_i \given c, z_i)$: 
     \begin{gather*}
-        Y_i(\omega) = `r indicator()`_{(c, +\infty)}(Z_i) = 
+        Y_i(\omega) = `r indicator()`_{(c, +\infty)}(Z_i(\omega)) = 
         \begin{cases}
-            1 & \text{ if } Z_i > c \\
+            1 & \text{ if } Z_i(\omega) > c \\
             0 & \text{ otherwise}
         \end{cases} \\
         \Downarrow \\
@@ -181,7 +181,7 @@ So we can write explicitly
         p(\beta \given y_{1:n}, z_{1:n}, c) & \propto p(z_{1:n} \given \beta) p(\beta) = \\
         & = \prod_{i = 1}^n p(z_i \given \beta) p(\beta) \propto \\
         & \propto \exp{-\frac{1}{2} \sum_{i = 1}^{n} (z_i - x_i \beta)^2} \exp{-\frac{1}{2} \frac{1}{\sigma_\beta^2} \beta^2} = \\
-        & = \exp{-\frac{1}{2} \left(\beta \sum_{i = 1}^{n} x_i^2 + `r cancel("\\sum_{i = 1}^{n} z_i^2")` - 2 \beta \sum_{i = 1}^{n} x_i z_i + \beta^2 \frac{1}{\sigma_\beta^2} \right)} = \\
+        & = \exp{-\frac{1}{2} \left(\beta^2 \sum_{i = 1}^{n} x_i^2 + `r cancel("\\sum_{i = 1}^{n} z_i^2")` - 2 \beta \sum_{i = 1}^{n} x_i z_i + \beta^2 \frac{1}{\sigma_\beta^2} \right)} = \\
         & = \operatorname{exp}\Bigg(- \underbrace{\left(\sum_{i = 1}^{n} x_i^2 + \frac{1}{\sigma_\beta^2}\right)}_{\displaystyle \deq (\sigma_{\beta, n}^2)^{-1}} \frac{\beta^2}{2} + \underbrace{\left(\sum_{i = 1}^{n} x_i z_i \right)}_{\displaystyle \deq \frac{\mu_{\beta, n}}{\sigma_{\beta, n}^2}} \beta \Bigg) ,
     \end{align*}
 where from the 1\ts{st} to the 2\ts{nd} line we used $\left(Z_i \given \beta\right)_{i = 1}^n$ independent, identically distributed r.v.'s. `r newline()`
@@ -230,8 +230,9 @@ More compactly, defining
 	\end{align*}
 one has 
 	\[
-        p(c \given y_{1:n}, z_{1:n}, \beta) \propto \exp{-\frac{1}{2} \frac{1}{\sigma_c^2} c^2} `r indicator()`_{[a_n, b_n)}(c).
+        p(c \given y_{1:n}, z_{1:n}, \beta) \propto \exp{-\frac{1}{2} \frac{1}{\sigma_c^2} c^2} `r indicator()`_{[a_n, b_n)}(c),
 	\]
+where, for a good definition, we are using $a_n < b_n$ which is clearly true because, if $a_n, b_n$ are finite, $\forall i, j \in \{1, \dots, n\}$ such that $y_i = 0$, $y_j = 1$, $(-\infty, c] \ni z_i < z_j \in (c, +\infty)$. `r newline()`
 First of all we have to observe that the indicator function constrains $c \in [a_n, b_n)$, but it is equivalent to $c \in (a_n, b_n)$ because our $p(c \given y_{1:n}, z_{1:n}, \beta)$ is a density function with respect to the lebesgue measure on $\real$ so each point has measure $0$ (so does $\{a_n\}$). `r newline()`
 Then, let us observe that this conditional density is proportional to the kernel of a gaussian (evaluated in $c$) multiplied by an indicator function (also evaluated in $c$), which constrains the domain to an interval (not necessarily limited, possibly $a_n = -\infty$ or $b_n = + \infty$). `r newline()`
 So completing the function $\exp{-\frac{1}{2} \frac{1}{\sigma_c^2} c^2} `r indicator()`_{(a_n, b_n)}(c)$ to a density one obtains
