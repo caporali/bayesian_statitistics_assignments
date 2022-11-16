@@ -316,10 +316,8 @@ The full conditional distributions we found are the following
 n = 1e3
 burnin = 1e3
 
-beta = double(length = n)
-c = double(length = n)
-z = double(length = n)
-y = integer(length = n)
+beta = c = matrix(0, n, 1)
+z = y = matrix(0, n, n)
 
 x_i = runif(n, 1, 10)
 
@@ -328,7 +326,6 @@ sigma_sq_beta = sigma_sq_c = 16
 
 beta[1] = rnorm(1, mu_beta, sigma_sq_beta)
 c[1] = rnorm(1, mu_c, sigma_sq_c)
-print(c[1])
 ```
 \normalsize
 
