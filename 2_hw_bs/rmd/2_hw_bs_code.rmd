@@ -281,12 +281,57 @@ In particular, completing to a density what we found
 Letting $\sigma_\beta^2 = \sigma_c^2 = 16$, implement a Gibbs sampling scheme that approximates the joint posterior distribution of $Z_{1:n}, \beta$ and $c$. After a burnin of $1000$, run the Gibbs sampler long enough so that the effective sample sizes of all unknown parameters are greater than $1000$ (including the $Z_i$'s).
 Compute the autocorrelation function of the parameters and discuss the mixing of the Markov chain.
 
-## Point d.
+\medskip
 
-Obtain a $95\%$ posterior credible interval for $\beta$, as well as $\prob{\beta > 0 \given y_{1:n}}$.
+The prior distributions of $\beta$ and $c$ are 
+\begin{align*}
+	& \beta \sim \normal{0}{\sigma_\beta^2}, \\
+	& c \sim \normal{0}{\sigma_c^2},
+\end{align*}
+moreover we can initially sample the $Z_i$'s from $\beta$ observing
+\begin{align*}
+	& Z_i \given \beta \sim \normal{\beta x_i}{1}.
+\end{align*}
+The full conditional distributions we found are the following
+\begin{align*}
+	& \beta \given z_{1:n} \sim \normal{\mu_{\beta, n}}{\sigma_{\beta, n}^2} \text{ with } 
+        \begin{cases}
+            \displaystyle \sigma_{\beta, n}^2 = \left(\sum_{i = 1}^{n} x_i^2 + \frac{1}{\sigma_\beta^2}\right)^{-1} \\
+            \displaystyle \mu_{\beta, n} = \sigma_{\beta, n}^2 \left(\sum_{i = 1}^{n} x_i z_i \right) \\
+		\end{cases} \\
+	& c \given y_{1:n}, z_{1:n} \sim \truncnormal{(a_n, b_n)}{0}{\sigma_c^2} \text{ with }
+		\begin{cases}
+			\displaystyle a_n & \deq \max\left(z_i \given i \in \{1, \dots, n\}, y_i = 0\right) \text{ and } \\
+			\displaystyle b_n & \deq \min\left(z_i \given i \in \{1, \dots, n\}, y_i = 1\right),
+		\end{cases} \\
+	& Z_i \given y_{i}, \beta, c \sim 
+		\begin{cases}
+			\displaystyle \truncnormal{(c, +\infty)}{x_i \beta}{1} \text{ if } y_i = 1 \\
+			\displaystyle\truncnormal{(-\infty, c)}{x_i \beta}{1} \text{ if } y_i = 0 \\
+		\end{cases}.
+\end{align*}
 
 \scriptsize
 ```{r}
+n = 1e3
+burnin = 1e3
 
+beta = double(length = n)
+c = double(length = n)
+z = double(length = n)
+y = integer(length = n)
+
+x_i = runif(n, 1, 10)
+
+mu_beta = mu_c = 0
+sigma_sq_beta = sigma_sq_c = 16
+
+beta[1] = rnorm(1, mu_beta, sigma_sq_beta)
+c[1] = rnorm(1, mu_c, sigma_sq_c)
+print(c[1])
 ```
 \normalsize
+
+## Point d.
+
+Obtain a $95\%$ posterior credible interval for $\beta$, as well as $\prob{\beta > 0 \given y_{1:n}}$.
