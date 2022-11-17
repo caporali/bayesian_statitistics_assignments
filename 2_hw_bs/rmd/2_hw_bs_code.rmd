@@ -135,7 +135,7 @@ First of all let us write explicitly the conditional distributions which we can 
     \begin{gather*}
         Z_i(\omega) \given \beta = \beta x_i + \epsilon_i(\omega) \sim \beta x_i + \normal{0}{1} \sim \normal{\beta x_i}{1} \implies Z_i \given \beta \sim \normal{\beta x_i}{1} \\
         \Downarrow \\
-        p(z_i \given \beta) = \frac{1}{\sqrt{2\pi}} e^{-\frac{1}{2} (z_i - x_i \beta)^2};
+        p(z_i \given \beta) = \frac{1}{\sqrt{2\pi}} e^{-\frac{1}{2} (z_i - \beta x_i)^2};
     \end{gather*}
 - $\forall i = 1, \dots, n$ we know $p(y_i \given c, z_i)$: 
     \begin{gather*}
@@ -180,7 +180,7 @@ So we can write explicitly
     \begin{align*}
         p(\beta \given y_{1:n}, z_{1:n}, c) & \propto p(z_{1:n} \given \beta) p(\beta) = \\
         & = \prod_{i = 1}^n p(z_i \given \beta) p(\beta) \propto \\
-        & \propto \exp{-\frac{1}{2} \sum_{i = 1}^{n} (z_i - x_i \beta)^2} \exp{-\frac{1}{2} \frac{1}{\sigma_\beta^2} \beta^2} = \\
+        & \propto \exp{-\frac{1}{2} \sum_{i = 1}^{n} (z_i - \beta x_i)^2} \exp{-\frac{1}{2} \frac{1}{\sigma_\beta^2} \beta^2} = \\
         & = \exp{-\frac{1}{2} \left(\beta^2 \sum_{i = 1}^{n} x_i^2 + `r cancel("\\sum_{i = 1}^{n} z_i^2")` - 2 \beta \sum_{i = 1}^{n} x_i z_i + \beta^2 \frac{1}{\sigma_\beta^2} \right)} = \\
         & = \operatorname{exp}\Bigg(- \underbrace{\left(\sum_{i = 1}^{n} x_i^2 + \frac{1}{\sigma_\beta^2}\right)}_{\displaystyle \deq (\sigma_{\beta, n}^2)^{-1}} \frac{\beta^2}{2} + \underbrace{\left(\sum_{i = 1}^{n} x_i z_i \right)}_{\displaystyle \deq \frac{\mu_{\beta, n}}{\sigma_{\beta, n}^2}} \beta \Bigg) ,
     \end{align*}
@@ -203,7 +203,7 @@ Assuming $c \sim \normal{0}{\sigma_c^2}$, show that $p(c \given y_{1:n}, z_{1:n}
 `r textbf("Hint:")` A constrained, or truncated, normal random variable $V$ is obtained by restricting a normally distributed random variable $\normal{\mu}{\tau^2}$ to lie in an interval $(a, b)$, with possibly $a = -\infty$ or $b = +\infty$. We use the notation $V \sim \truncnormal{(a,b)}{\mu}{\tau^2}$. It holds:
 
 - $p(v \given \mu, \tau^2, a, b) = \frac{1}{C} \frac{1}{\sqrt{2\pi\tau^2}} \exp{-\frac{1}{2\tau^2}(v - \mu)^2} `r indicator()`_{(a, b)}(v)$, where $C = \Phi\left(\frac{b - \mu}{\tau}\right) - \Phi\left(\frac{a - \mu}{\tau}\right)$ being $\Phi(\cdot)$ the cdf of the standard normal distribution. By definition, it holds $\Phi\left(\frac{b - \mu}{\tau}\right) = 1$ if $b = \infty$ and $\Phi\left(\frac{a - \mu}{\tau}\right) = 0$ if $a = -\infty$.
-- Sampling can be performed thanks to the function \texttt{rtruncnorm(n, a, b, mean, sd)} from the package \texttt{rtruncnorm} [https://cran.r-project.org/web/packages/truncnorm/truncnorm.pdf]. This function receives in input the number of desired samples ($n$) and the four parameters specifying the distribution of $V$: $a, b, \mu, \tau$. Pay attention that it takes as last inputs the mean $\mu$ and the standard deviation $\tau$ (not the variance $\tau^2$) of the un-truncated normal density.
+- Sampling can be performed thanks to the function \texttt{rtruncnorm(n, a, b, mean, sd)} from the package \texttt{truncnorm} [https://cran.r-project.org/web/packages/truncnorm/truncnorm.pdf]. This function receives in input the number of desired samples ($n$) and the four parameters specifying the distribution of $V$: $a, b, \mu, \tau$. Pay attention that it takes as last inputs the mean $\mu$ and the standard deviation $\tau$ (not the variance $\tau^2$) of the un-truncated normal density.
 
 \medskip
 
@@ -252,11 +252,11 @@ Similarly
 		& \propto p(y_{1:n} \given z_{1:n}, c) p(z_i \given \beta) \propto \\
 		& \propto \prod_{j = 1}^n p(y_j \given z_j, c) p(z_i \given \beta) \propto \\
 		& \propto p(y_i \given z_i, c) p(z_i \given \beta) \propto \\
-		& \propto \Big(y_i \underbrace{`r indicator()`_{(-\infty, z_i)}(c)}_{\displaystyle = `r indicator()`_{(c, +\infty)}(z_i)} + (1 - y_i) \underbrace{`r indicator()`_{(-\infty, z_i)^C}(c)}_{\displaystyle = `r indicator()`_{(-\infty, c]}(z_i)}\Big) `r indicator()`_{\{0, 1\}}(y_i) \exp{-\frac{1}{2} (z_i - x_i \beta)^2} = \\
+		& \propto \Big(y_i \underbrace{`r indicator()`_{(-\infty, z_i)}(c)}_{\displaystyle = `r indicator()`_{(c, +\infty)}(z_i)} + (1 - y_i) \underbrace{`r indicator()`_{(-\infty, z_i)^C}(c)}_{\displaystyle = `r indicator()`_{(-\infty, c]}(z_i)}\Big) `r indicator()`_{\{0, 1\}}(y_i) \exp{-\frac{1}{2} (z_i - \beta x_i)^2} = \\
 		& = 
 			\begin{cases}
-				\displaystyle `r indicator()`_{(c, +\infty)}(z_i) \exp{-\frac{1}{2} (z_i - x_i \beta)^2} & \text{ if } y_i = 1 \\
-				\displaystyle `r indicator()`_{(-\infty, c]}(z_i) \exp{-\frac{1}{2} (z_i - x_i \beta)^2} & \text{ if } y_i = 0 \\
+				\displaystyle `r indicator()`_{(c, +\infty)}(z_i) \exp{-\frac{1}{2} (z_i - \beta x_i)^2} & \text{ if } y_i = 1 \\
+				\displaystyle `r indicator()`_{(-\infty, c]}(z_i) \exp{-\frac{1}{2} (z_i - \beta x_i)^2} & \text{ if } y_i = 0 \\
 			\end{cases}.
 	\end{align*}
 As before, this conditional density is proportional to the kernel of a gaussian (evaluated in $z_i$) multiplied by an indicator function (also evaluated in $z_i$) which constrains the domain to be $(c, +\infty)$ or $(-\infty, c]$ (equivalently $(-\infty, c)$, with the same motivation given above) depending on $y_i$. `r newline()`
@@ -264,14 +264,14 @@ In particular, completing to a density what we found
 	\begin{gather*}
 		p(z_i \given y_{1:n}, z_{-i}, \beta, c) = 
 		\begin{cases}
-			\displaystyle \frac{1}{1 - \Phi(c - x_i\beta)} \frac{1}{\sqrt{2 \pi}} \exp{-\frac{1}{2} (z_i - x_i \beta)^2} `r indicator()`_{(c, +\infty)}(z_i) & \text{ if } y_i = 1 \\
-			\displaystyle \frac{1}{\Phi(c - x_i\beta)} \frac{1}{\sqrt{2 \pi}} \exp{-\frac{1}{2} (z_i - x_i \beta)^2} `r indicator()`_{(-\infty, c)}(z_i) & \text{ if } y_i = 0 \\
+			\displaystyle \frac{1}{1 - \Phi(c - x_i\beta)} \frac{1}{\sqrt{2 \pi}} \exp{-\frac{1}{2} (z_i - \beta x_i)^2} `r indicator()`_{(c, +\infty)}(z_i) & \text{ if } y_i = 1 \\
+			\displaystyle \frac{1}{\Phi(c - x_i\beta)} \frac{1}{\sqrt{2 \pi}} \exp{-\frac{1}{2} (z_i - \beta x_i)^2} `r indicator()`_{(-\infty, c)}(z_i) & \text{ if } y_i = 0 \\
 		\end{cases} \\
 		\Downarrow \\
 		Z_i \given y_{1:n}, z_{-i}, \beta, c \sim 
 		\begin{cases}
-			\displaystyle \truncnormal{(c, +\infty)}{x_i \beta}{1} \text{ if } y_i = 1 \\
-			\displaystyle\truncnormal{(-\infty, c)}{x_i \beta}{1} \text{ if } y_i = 0 \\
+			\displaystyle \truncnormal{(c, +\infty)}{\beta x_i}{1} \text{ if } y_i = 1 \\
+			\displaystyle\truncnormal{(-\infty, c)}{\beta x_i}{1} \text{ if } y_i = 0 \\
 		\end{cases}.
 	\end{gather*}
 \qed
@@ -306,26 +306,76 @@ The full conditional distributions we found are the following
 		\end{cases} \\
 	& Z_i \given y_{i}, \beta, c \sim 
 		\begin{cases}
-			\displaystyle \truncnormal{(c, +\infty)}{x_i \beta}{1} \text{ if } y_i = 1 \\
-			\displaystyle\truncnormal{(-\infty, c)}{x_i \beta}{1} \text{ if } y_i = 0 \\
+			\displaystyle \truncnormal{(c, +\infty)}{\beta x_i}{1} \text{ if } y_i = 1 \\
+			\displaystyle\truncnormal{(-\infty, c)}{\beta x_i}{1} \text{ if } y_i = 0 \\
 		\end{cases}.
 \end{align*}
 
 \scriptsize
+
 ```{r}
-n = 1e3
+library(coda)
+library(truncnorm)
+load(file = "./2_hw_bs/rmd/divorce.RData")
+set.seed(1)
+
+# setting parameters
 burnin = 1e3
+tmax = burnin + 1e3
+n = 25
 
-beta = c = matrix(0, n, 1)
-z = y = matrix(0, n, n)
+# build and upload: beta, c, z_1:n, y_1:n
+beta = c = matrix(0, 1, tmax)
+z = y = matrix(0, n, tmax)
+x = matrix(0, n, 1)
+x[, 1] = divorce[, "X"]
+y[, 1] = divorce[, "Y"]
 
-x_i = runif(n, 1, 10)
-
-mu_beta = mu_c = 0
+# parameters for priors and full conditionals distributions
+mu_beta = matrix(0, 1, tmax)
+mu_beta[1] = 0
+mu_c = 0
 sigma_sq_beta = sigma_sq_c = 16
+sigma_sq_beta_n = (sum(x^2) + (sigma_sq_beta)^(-1))^(-1)
+a = matrix(-Inf, 1, tmax)
+b = matrix(Inf, 1, tmax)
 
-beta[1] = rnorm(1, mu_beta, sigma_sq_beta)
-c[1] = rnorm(1, mu_c, sigma_sq_c)
+# prior samples
+beta[1] = rnorm(1, mu_beta[1], sqrt(sigma_sq_beta))
+c[1] = rnorm(1, mu_c, sqrt(sigma_sq_c))
+# z[, 1] = rnorm(n, beta[1] * x, rep(1, n))
+# y[, 1] = 1 * (z[, 1] > c[1])
+
+# mcmc
+for (t in 2:(tmax)) {
+	# z
+	lower_bound = rep(c[t - 1], n)
+	lower_bound[y[, t - 1] == 0] = -Inf
+	upper_bound = rep(c[t - 1], n)
+	upper_bound[y[, t - 1] == 1] = +Inf
+	z[, t] = rtruncnorm(n, lower_bound, upper_bound, beta[t - 1] * x, rep(1, n))
+
+	# update y (useless because they follow the behaviour of z which is sampled given y)
+	y[, t] = 1 * (z[, t] > c[t - 1])
+
+	# beta
+	mu_beta[t] = sigma_sq_beta_n * sum(x * z[, t])
+	beta[t] = dnorm(1, mu_beta[t], sqrt(sigma_sq_beta_n))
+
+	# c
+	a[t] = max(z[, t][y[, t] == 0])
+	b[t] = min(z[, t][y[, t] == 1])
+	c[t] = rtruncnorm(1, a[t], b[t], mu_c, sqrt(sigma_sq_c))
+
+	# update y (useless because they follow the behaviour of z which is sampled given y)
+	y[, t] = 1 * (z[, t] > c[t])
+
+	# break if eff_size > 1000 (for all params)
+	if (t > burnin && effectiveSize(c[1, -c(1:burnin)]) > 1000) { 
+		print(t)
+		break
+	}
+}
 ```
 \normalsize
 
