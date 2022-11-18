@@ -286,34 +286,29 @@ Compute the autocorrelation function of the parameters and discuss the mixing of
 The prior distributions of $\beta$ and $c$ are 
 \begin{align*}
 	& \beta \sim \normal{0}{\sigma_\beta^2}, \\
-	& c \sim \normal{0}{\sigma_c^2},
-\end{align*}
-moreover we can initially sample the $Z_i$'s from $\beta$ observing
-\begin{align*}
-	& Z_i \given \beta \sim \normal{\beta x_i}{1}.
+	& c \sim \normal{0}{\sigma_c^2}.
 \end{align*}
 The full conditional distributions we found are the following
 \begin{align*}
-	& \beta \given z_{1:n} \sim \normal{\mu_{\beta, n}}{\sigma_{\beta, n}^2} \text{ with } 
-        \begin{cases}
-            \displaystyle \sigma_{\beta, n}^2 = \left(\sum_{i = 1}^{n} x_i^2 + \frac{1}{\sigma_\beta^2}\right)^{-1} \\
-            \displaystyle \mu_{\beta, n} = \sigma_{\beta, n}^2 \left(\sum_{i = 1}^{n} x_i z_i \right) \\
-		\end{cases} \\
-	& c \given y_{1:n}, z_{1:n} \sim \truncnormal{(a_n, b_n)}{0}{\sigma_c^2} \text{ with }
-		\begin{cases}
-			\displaystyle a_n & \deq \max\left(z_i \given i \in \{1, \dots, n\}, y_i = 0\right) \text{ and } \\
-			\displaystyle b_n & \deq \min\left(z_i \given i \in \{1, \dots, n\}, y_i = 1\right),
-		\end{cases} \\
 	& Z_i \given y_{i}, \beta, c \sim 
 		\begin{cases}
 			\displaystyle \truncnormal{(c, +\infty)}{\beta x_i}{1} \text{ if } y_i = 1 \\
 			\displaystyle\truncnormal{(-\infty, c)}{\beta x_i}{1} \text{ if } y_i = 0 \\
+		\end{cases} \ , \\
+	& \beta \given z_{1:n} \sim \normal{\mu_{\beta, n}}{\sigma_{\beta, n}^2} \text{ with } 
+        \begin{cases}
+            \displaystyle \sigma_{\beta, n}^2 = \left(\sum_{i = 1}^{n} x_i^2 + \frac{1}{\sigma_\beta^2}\right)^{-1} \\
+            \displaystyle \mu_{\beta, n} = \sigma_{\beta, n}^2 \left(\sum_{i = 1}^{n} x_i z_i \right) \\
+		\end{cases} \ , \\
+	& c \given y_{1:n}, z_{1:n} \sim \truncnormal{(a_n, b_n)}{0}{\sigma_c^2} \text{ with }
+		\begin{cases}
+			\displaystyle a_n & \deq \max\left(z_i \given i \in \{1, \dots, n\}, y_i = 0\right) \text{ and } \\
+			\displaystyle b_n & \deq \min\left(z_i \given i \in \{1, \dots, n\}, y_i = 1\right)
 		\end{cases}.
 \end{align*}
 
-
+<!-- load(file = "./2_hw_bs/rmd/divorce.RData") -->
 \scriptsize
-
 ```{r}
 library(coda)
 library(truncnorm)
@@ -322,63 +317,117 @@ set.seed(1)
 
 # setting parameters
 burnin = 1e3
-tmax = burnin + 1e3
+tmax = burnin + 1e5
 n = 25
 
 # build and upload: beta, c, z_1:n, y_1:n
-beta = c = matrix(0, 1, tmax)
-z = y = matrix(0, n, tmax)
-x = matrix(0, n, 1)
-x[, 1] = divorce[, "X"]
-y[, 1] = divorce[, "Y"]
+beta = c = matrix(0, tmax, 1)
+z = y = matrix(0, tmax, n)
+x = matrix(0, 1, n)
+x[1, ] = divorce[, "X"]
+y[1, ] = divorce[, "Y"]
 
 # parameters for priors and full conditionals distributions
-mu_beta = matrix(0, 1, tmax)
+mu_beta = matrix(0, tmax, 1)
 mu_beta[1] = 0
 mu_c = 0
 sigma_sq_beta = sigma_sq_c = 16
 sigma_sq_beta_n = (sum(x^2) + (sigma_sq_beta)^(-1))^(-1)
-a = matrix(-Inf, 1, tmax)
-b = matrix(Inf, 1, tmax)
+a = matrix(-Inf, tmax, 1)
+b = matrix(Inf, tmax, 1)
 
 # prior samples
 beta[1] = rnorm(1, mu_beta[1], sqrt(sigma_sq_beta))
 c[1] = rnorm(1, mu_c, sqrt(sigma_sq_c))
-# z[, 1] = rnorm(n, beta[1] * x, rep(1, n))
-# y[, 1] = 1 * (z[, 1] > c[1])
 
-# mcmc
+# gibbs sampler
 for (t in 2:(tmax)) {
 	# z
 	lower_bound = rep(c[t - 1], n)
-	lower_bound[y[, t - 1] == 0] = -Inf
+	lower_bound[y[t - 1, ] == 0] = -Inf
 	upper_bound = rep(c[t - 1], n)
-	upper_bound[y[, t - 1] == 1] = +Inf
-	z[, t] = rtruncnorm(n, lower_bound, upper_bound, beta[t - 1] * x, rep(1, n))
+	upper_bound[y[t - 1, ] == 1] = +Inf
+	z[t, ] = rtruncnorm(n, lower_bound, upper_bound, beta[t - 1] * x, rep(1, n))
 
-	# update y (useless because they follow the behaviour of z which is sampled given y)
-	y[, t] = 1 * (z[, t] > c[t - 1])
+	# update y (redundant because they follow the behaviour of z which is sampled given y)
+	y[t, ] = 1 * (z[t, ] > c[t - 1])
 
 	# beta
-	mu_beta[t] = sigma_sq_beta_n * sum(x * z[, t])
+	mu_beta[t] = sigma_sq_beta_n * sum(x * z[t, ])
 	beta[t] = dnorm(1, mu_beta[t], sqrt(sigma_sq_beta_n))
 
 	# c
-	a[t] = max(z[, t][y[, t] == 0])
-	b[t] = min(z[, t][y[, t] == 1])
+	a[t] = max(z[t, ][y[t, ] == 0])
+	b[t] = min(z[t, ][y[t, ] == 1])
 	c[t] = rtruncnorm(1, a[t], b[t], mu_c, sqrt(sigma_sq_c))
 
-	# update y (useless because they follow the behaviour of z which is sampled given y)
-	y[, t] = 1 * (z[, t] > c[t])
+	# re-update y (redundant because they follow the behaviour of z which is sampled given y)
+	y[t, ] = 1 * (z[t, ] > c[t])
 
 	# break if eff_size > 1000 (for all params)
-	if (t > burnin && effectiveSize(c[1, -c(1:burnin)]) > 1000) { 
-		print(t)
-		break
+	if (t > burnin + 1 & (t %% 1000 == 0)) { 		
+		if (effectiveSize(c[c((burnin + 1):t)]) > 1000 &
+			# effectiveSize(beta[c((burnin + 1):t)]) > 1000 &
+			prod(effectiveSize(z[c((burnin + 1):t), ]) > 1000) == 1) 
+		{
+			c = c[c((burnin + 1):t)]
+			beta = beta[c((burnin + 1):t)]
+			z = z[c((burnin + 1):t), ]
+			break
+		}
 	}
 }
+
+# mcmc
+params_mcmc = mcmc(cbind(beta, c, z))
 ```
 \normalsize
+
+\medskip
+
+The effective sample size of the parameters are
+
+- $S_{eff}(c) = `r round(effectiveSize(c), 2)`\,$;
+- $S_{eff}(\beta) = `r round(effectiveSize(beta), 2)`\,$; 
+- $S_{eff}(Z_{1:25}) = 
+	\begin{aligned} 
+		& `r paste(c("[", paste(round(matrix(effectiveSize(z), nrow = 1)[1:9], 2), collapse = ", ")), collapse = "")` \\
+		& `r paste(c("\\ ", paste(round(matrix(effectiveSize(z), nrow = 1)[10:18], 2), collapse = ", ")), collapse = "")` \\
+		& `r paste(c("\\ ", paste(round(matrix(effectiveSize(z), nrow = 1)[1:9], 2), collapse = ", "), "]"), collapse = "")` \\
+	\end{aligned} \quad$.
+
+\medskip
+
+Below are the autocorrelation functions of the parameters.
+
+- $\beta$ : 
+	\smallskip
+	\scriptsize
+	```{r, fig.align = "center", out.width = "75%"}
+	# autocorrelation function of beta
+	acf_beta = acf(mcmc(beta), lag.max = 50, main = "")
+	```
+	\normalsize
+- $c$ : 
+	\smallskip
+	\scriptsize
+	```{r, fig.align = "center", out.width = "75%"}
+	# autocorrelation function of c
+	acf_c = acf(mcmc(c), lag.max = 50, main = "")
+	```
+\normalsize
+- $Z_{1:25}$ (taken $i = 15$ as an example, so the autocorrelation function of $Z_{15}$) : 
+	\smallskip
+	\scriptsize
+	```{r, fig.align = "center", out.width = "75%"}
+	# autocorrelation function of z (i = 15 taken as an example)
+	acf_z_15 = acf(mcmc(z[, 15]), lag.max = 50, main = "")
+	```
+	\normalsize
+
+\medskip
+
+Discuss the mixing of the markov chain\dots
 
 ## Point d.
 
@@ -391,11 +440,11 @@ Obtain a $95\%$ posterior credible interval for $\beta$, as well as $\prob{\beta
 \scriptsize
 ```{r}
 set.seed(123)
-library("coda")
-library("bayesplot")
-library("ggplot2")
-library("gridExtra")
-library("lattice")
+library(coda)
+library(bayesplot)
+library(ggplot2)
+library(gridExtra)
+library(lattice)
 library(grid)
 library(dplyr)
 
