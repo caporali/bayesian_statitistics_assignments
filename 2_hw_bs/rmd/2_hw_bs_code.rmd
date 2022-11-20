@@ -541,14 +541,15 @@ for (s in 1:(burnin+S)) {
     mu.mcmc[s-burnin] = mu
     tau2.mcmc[s-burnin] = tau2
     
-    if (s > burnin + 12 & 
-        effectiveSize(mu.mcmc) >= 1000 &
-        effectiveSize(tau2.mcmc) >= 1000 & 
-        effectiveSize(sigma2.mcmc) >= 1000 &
-        prod(effectiveSize(theta.mcmc) >= 1000) == 1) 
+    if (s > burnin + 12 & (s %% 1000 == 0)) {
+        if (effectiveSize(mu.mcmc) >= 1000 &
+        	effectiveSize(tau2.mcmc) >= 1000 & 
+        	effectiveSize(sigma2.mcmc) >= 1000 &
+       		prod(effectiveSize(theta.mcmc) >= 1000) == 1)
         {
             break
         }
+	}
   }
 }
   
@@ -767,7 +768,7 @@ The Monte Carlo estimates of the posterior probabilities of the two events are, 
 
 ## Point e.
 
-By plotting the sample averages ${\bar{y}_i}_{i = 1}^{8}$ against the posterior expectation values of the ${\theta_i}_{i = 1}^{8}$, we observe that they appear to have a linear relation.
+<!-- By plotting the sample averages ${\bar{y}_i}_{i = 1}^{8}$ against the posterior expectation values of the ${\theta_i}_{i = 1}^{8}$, we observe that they appear to have a linear relation. -->
 \scriptsize
 ```{r}
 library(ggrepel)
