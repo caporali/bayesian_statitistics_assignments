@@ -396,9 +396,9 @@ The effective sample size of the parameters are
 - $S_{eff}(\beta) = `r round(effectiveSize(beta), 2)`\,$; 
 - $S_{eff}(Z_{1:25}) = 
 	\begin{aligned} 
-		& `r paste(c("[", paste(round(matrix(effectiveSize(z), nrow = 1)[1:9], 2), collapse = ", ")), collapse = "")` \\
-		& `r paste(c("\\ ", paste(round(matrix(effectiveSize(z), nrow = 1)[10:18], 2), collapse = ", ")), collapse = "")` \\
-		& `r paste(c("\\ ", paste(round(matrix(effectiveSize(z), nrow = 1)[1:9], 2), collapse = ", "), "]"), collapse = "")` \\
+		& `r paste(c("[", paste(round(matrix(effectiveSize(z), nrow = 1)[1:9], 0), collapse = ", ")), collapse = "")` \\
+		& `r paste(c("\\ ", paste(round(matrix(effectiveSize(z), nrow = 1)[10:18], 0), collapse = ", ")), collapse = "")` \\
+		& `r paste(c("\\ ", paste(round(matrix(effectiveSize(z), nrow = 1)[1:9], 0), collapse = ", "), "]"), collapse = "")` \\
 	\end{aligned} \quad$.
 
 \medskip
@@ -453,13 +453,13 @@ with the following prior parameters:
 
 That is,
 \begin{align*}
-& y_{1, j}, . . . , y{n_{j}, j} | \theta_{j} , \sigma^2 `r simiid()` \normal{\theta_{j}}{\sigma^2}, j = 1, . . . , 8, \\
+& y_{1, j}, . . . , y_{n_j, j} | \theta_{j} , \sigma^2 `r simiid()` \normal{\theta_{j}}{\sigma^2}, j = 1, . . . , 8, \\
 &  \theta_{1} , . . . , \theta_{8} | \mu, \tau^2  `r simiid()` \normal{\mu}{\tau^2}, \\
-& \mu \sim \normal{\mu}{\gamma_{0}^2} , \quad 1/\tau^2 Gamma(\eta_{0}/2, \eta_{0}\tau_{0}^2/2), \quad 1/\sigma^2 Gamma(\nu_{0}/2, \nu_{0}\sigma_{0}^2/2)
+& \mu \sim \normal{\mu}{\gamma_{0}^2} , \quad 1/\tau^2 \sim Gamma(\eta_{0}/2, \eta_{0}\tau_{0}^2/2), \quad 1/\sigma^2 \sim Gamma(\nu_{0}/2, \nu_{0}\sigma_{0}^2/2)
 \end{align*}
 
 ## Point a.
-We implement a Gibbs sampling scheme that approximates the posterior distribution of ${\theta_{1:8}, \mu, \sigma^2, \tau^2}$. After a burning of $1000$, we run the Gibbs sampler long enough so that the effective sample sizes of all unknown parameters are greater than $1000$ (including the $theta_i$'s).
+We implement a Gibbs sampling scheme that approximates the posterior distribution of ${\theta_{1:8}, \mu, \sigma^2, \tau^2}$. After a burning of $1000$, we run the Gibbs sampler long enough so that the effective sample sizes of all unknown parameters are greater than $1000$ (including the $\theta_i$'s).
 \scriptsize
 ```{r}
 set.seed(1)
@@ -497,7 +497,7 @@ tau2 = var(theta)
 
 # MCMC
 burnin = 1e3
-S = 5e3
+S = 1e4
 theta.mcmc = mcmc(matrix(0, nrow = S, ncol = m)) # declare them as mcmc objects
 
 # Storing sigma, mu, theta
@@ -540,19 +540,20 @@ for (s in 1:(burnin+S)) {
     sigma2.mcmc[s-burnin] = sigma2
     mu.mcmc[s-burnin] = mu
     tau2.mcmc[s-burnin] = tau2
-    
-    if (s > burnin + 12 & (s %% 1000 == 0)) {
+    #break when the chains reach the wanted effective size  
+    if (s > burnin + 2 & (s %% 1000 == 0)) {
         if (effectiveSize(mu.mcmc) >= 1000 &
         	effectiveSize(tau2.mcmc) >= 1000 & 
         	effectiveSize(sigma2.mcmc) >= 1000 &
-       		prod(effectiveSize(theta.mcmc) >= 1000) == 1)
+       		prod(effectiveSize(theta.mcmc[1:(s - burnin), 1:8, drop = TRUE]) >= 1000) == 1)
         {
-            break
+          s = s - burnin   
+          break
         }
 	}
   }
 }
-  
+ 
 ```
 \normalsize
 
@@ -631,7 +632,7 @@ S_theta = effectiveSize(theta.mcmc)
 ```
 \normalsize
 \smallskip
-As you can see, the chains span quite well and converge nicely, though not very rapidly.
+As you can see, the chains span quite well and converge nicely and quite rapidly.
 
 In fact, we can observe that the effective sample size of the parameters are: `r newline()`
 - $S_{eff}(\mu) = `r round(effectiveSize(mu.mcmc), 0)`\,$;`r newline()`
@@ -639,36 +640,25 @@ In fact, we can observe that the effective sample size of the parameters are: `r
 - $S_{eff}(\tau^2) = `r round(effectiveSize(tau2.mcmc), 0)`\,$; `r newline()`
 - $S_{eff}(\theta_{1:8}) = 
 	\begin{aligned} 
-		& `r paste(c("[", paste(round(matrix(effectiveSize(z), nrow = 1)[1:8], 0), collapse = ", "), "]"), collapse = "")` `r newline()`
-	\end{aligned} \quad$.
-which, compared to their length = `r s - burnin`, signifies a quite slow convergence.
+		& `r paste(c("[", paste(round(matrix(effectiveSize(z), nrow = 1)[1:8], 0), collapse = ", "), "]"), collapse = "")` \\
+	\end{aligned} \quad$.`r newline()`
+	
+which, compared to their length = `r s - burnin`, signifies a quite fast convergence.
 
 ## Point b.
 
-As we can observe, the posterior densities are peaked around their means, which differs from the prior ones, though not by much: the data mitigate the effect of the priors, given that the mean will converge to the sample one for each of the parameters, but the original offset was not too large. What the data definitely affects is the variance, given that the posterior distributions are more pronouncedly peaked around their expectation value, so that we gain more certainty around each value. This is furthermore reflected on their quantile-based $95\%$ posterior credible intervals.
+We now proceed to compare the posterior densities of our parameters $\mu, \tau^2$ and $\sigma^2$ to their prior ones.
 
 \scriptsize
-```{r}
-#quantile-based 95% confidence regions for the MCMC
+```{r, fig.align = "center", out.width = "75%"}
+library(invgamma)
+
+#statistics for the MCMC
 alpha = 0.05
 
 a_mu = summary(mu.mcmc, quantiles= c(alpha/2, 1-alpha/2))
 a_tau = summary(tau2.mcmc, quantiles= c(alpha/2, 1-alpha/2))
 a_sigma = summary(sigma2.mcmc, quantiles= c(alpha/2, 1-alpha/2))
-
-```
-\normalsize
-\smallskip
-
-The quantile-based $95\%$ posterior credible interval for $\mu, \tau^2$ and $\sigma^2$ are, respectively: `r newline()`
-- $\mu$: [`r paste( a_mu$quantiles[1], ",", a_mu$quantiles[2])`] and the posterior mean is $\bar{\mu}$ = `r round(a_mu$statistics[1], 2)` `r newline()`
-- $\tau^2$: [ `r paste( a_tau$quantiles[1], ",", a_tau$quantiles[2])`] and the posterior mean is $\bar{\tau}^2$ = `r round(a_tau$statistics[1], 2)` `r newline()`
-- $\sigma^2$: [ `r paste( a_sigma$quantiles[1], ",", a_sigma$quantiles[2])`] and the posterior mean $\bar{\sigma}^2$ = `r round(a_sigma$statistics[1], 2)``r newline()`
-
-
-\scriptsize
-```{r, fig.align = "center", out.width = "75%"}
-library(invgamma)
 
 #density plots comparison
 x1 = seq(mu0 - 2*g20,  mu0 + 2*g20, length = 200)
@@ -681,37 +671,56 @@ priors = data.frame(x1, x2, x3, norm_vals, invG_sigma, invG_tau)
 
 color_scheme_set("blue")
 mcmc_dens(as.data.frame(mu.mcmc), alpha = 0.5)+
-  xaxis_text(on = FALSE)+
   ggtitle(expression(paste("Posterior distribution of ", mu))) +
   geom_area(data = priors, aes(x= x1, y=norm_vals, col = "prior"),  fill = "red", alpha = 0.3, size = 0.8) +
   geom_vline(aes(xintercept = a_mu$statistics[1], col = "posterior"), size = 1)+
   geom_vline(aes(xintercept = mu0, col = "prior"), size = 1)+
+  xlab(expression(mu)) +
+  ylab(expression(paste("p(", mu, " | ", y[i, j], ")"))) +
   scale_color_manual(name = "Legend", values = c("prior" = "red", "posterior" = "blue"), 
     labels = c("prior distribution", "posterior distribution"))
 
 mcmc_dens(as.data.frame(tau2.mcmc), alpha = 0.5)+
-  xaxis_text(on = FALSE)+
   ggtitle(expression(paste("Posterior distribution of ", tau^2))) +
   geom_area(data = priors, aes(x= x2, y=invG_tau, col = "prior"), fill = "red", alpha = 0.3, size = 0.8) +
   geom_vline(aes(xintercept = a_tau$statistics[1], col = "posterior"), size = 1)+
   geom_vline(aes(xintercept = t20, col = "prior"), size = 1)+
+  xlab(expression(tau^2)) +
+  ylab(expression(paste("p(", tau^2, " | ", y[i, j], ")"))) +
   scale_color_manual(name = "Legend", values = c("prior" = "red", "posterior" = "blue"), 
     labels = c("prior distribution", "posterior distribution"))
 
 mcmc_dens(as.data.frame(sigma2.mcmc), alpha = 0.5)+
-  xaxis_text(on = FALSE)+
   ggtitle(expression(paste("Posterior distribution of ", sigma^2))) +
   geom_area(data = priors, aes(x= x3, y=invG_sigma, col = "prior"), fill = "red", alpha = 0.3, size = 0.8) +
   geom_vline(aes(xintercept = a_sigma$statistics[1], col = "posterior"), size = 1)+
   geom_vline(aes(xintercept = s20, col = "prior"), size = 1)+
+  xlab(expression(tau^2)) +
+  ylab(expression(paste("p(", sigma^2, " | ", y[i, j], ")"))) +
   scale_color_manual(name = "Legend", values = c("prior" = "red", "posterior" = "blue"), 
     labels = c("prior distribution", "posterior distribution"))
 
 ```
 \normalsize
+\medskip
+As we can observe, the posterior densities are peaked around their means, which differs from the prior ones, though not by much: the data mitigate the effect of the priors, given that the mean will converge to the sample one for each of the parameters, but the original offset was not too large. What the data definitely affects is the variance, given that the posterior distributions are more pronouncedly peaked around their expectation value, so that we gain more certainty around each value. 
+
+This is furthermore reflected on their quantile-based $95\%$ posterior credible intervals.
+The quantile-based $95\%$ posterior credible interval for $\mu, \tau^2$ and $\sigma^2$ are, respectively: `r newline()`
+- $I_{\mu}$ =  [`r paste(" ",  a_mu$quantiles[1], " , ", a_mu$quantiles[2], " ")`] with posterior mean $\bar{\mu}$ = `r round(a_mu$statistics[1], 2)` `r newline()`
+- $I_{\tau^2}$: [ `r paste(" ", a_tau$quantiles[1], ",", a_tau$quantiles[2], " ")`] with posterior mean $\bar{\tau}^2$ = `r round(a_tau$statistics[1], 2)` `r newline()`
+- $I_{\sigma^2}$: [ `r paste(" ", a_sigma$quantiles[1], ",", a_sigma$quantiles[2], " ")`] with posterior mean $\bar{\sigma}^2$ = `r round(a_sigma$statistics[1], 2)``r newline()`
+
 
 ## Point c.
 
+We want to study in particular the beetween-school variance, and we do so by observing the prior and posterior densities of the parameter:
+\begin{align*}
+  R = \frac{\tau^2}{\tau^2 + \sigma^2}
+\end{align*}
+This parameter gives us an index of the relevance of the between-school variation (given that $\tau^2$ corresponds to the variance of the $\theta_i$'s), in relation to the within-school one (as $\sigma^2$ is the variance of the $Y_{i, j}$'s).
+We start by observing that this index can only assume values in $[0, 1]$, given that both parameters are positive, and the $\tau^2$ contribute is the more relevant, the closer $R$ is to 1.
+\smallskip
 \scriptsize
 ```{r, fig.align = "center", out.width = "75%"}
 
@@ -729,18 +738,23 @@ for (i in 1:s){
 sample_r = data.frame(sample.r.prior, sample.r.post)
 
 sample_r %>% ggplot()+
-  geom_density(aes(x = sample.r.prior, col = "prior"), fill = "red", alpha = 0.3, size = 0.8)+
-  geom_density(aes(x = sample.r.post, col="posterior"), fill = "blue", alpha = 0.3, size = 0.8)+
+  geom_density(aes(x = sample.r.prior, col = "prior"), fill = "red", alpha = 0.2, size = 0.7)+
+  geom_density(aes(x = sample.r.post, col="posterior"), fill = "blue", alpha = 0.2, size = 0.7)+
   scale_color_manual(name = "Legend", values = c("prior" = "red", "posterior" = "blue"), 
     labels = c("prior distribution", "posterior distribution"))+
   ylab(" ") +
   xlab(" ") +
-  ggtitle("Posterior density VS Prior density for parameter R ")
+  ggtitle("Posterior density VS Prior density for parameter R")
 ```
 \normalsize
+\smallskip
+
+We observe that while in the prior the values are quite spread-out, which agrees with the independency of the two parameters, the posterior distribution in quite peaked and for a finite value, closer to 0 than to 1: this shows that while not being the dominant effect, we do not have enough evidence to consider the between-school variation negligible (as it is not close enough to zero).
 
 ## Point d.
 
+Suppose we now observe a new school with school-specific parameter $\theta_9$, and suppose we make a new observation of this school $\tilde{Y_9}$. Let us compare them to those of school 7, in order to see weather or not they are higher than those of the latter: we will do so through Monte Carlo sampling.
+\smallskip
 \scriptsize
 ```{r}
 a_theta = summary(theta.mcmc)
@@ -756,15 +770,17 @@ for (i in 1:S){
   sample.y9[i] = rnorm(1, sample.theta9[i], sqrt(sigma2.mcmc[i, drop = TRUE] + tau2.mcmc[i, drop = TRUE]))
 }
 
-mc_theta = sum(sample.theta9 > theta.mcmc[1:S, 7]) / S
-mc_y = sum(sample.y9 > sample.y7)/S
+mc_theta = sum(sample.theta9 > theta.mcmc[1:s, 7]) / s
+mc_y = sum(sample.y9 > sample.y7)/s
 
 ```
 \normalsize
-
+\smallskip
 The Monte Carlo estimates of the posterior probabilities of the two events are, respectively: `r newline()`
--$\mathbb{P}[\theta_{9} > \theta_{7}] = `r mc_theta`$, `r newline()`
--$\mathbb{P}[\tilde{Y}_{9} > \tilde{Y}_{7}] = `r mc_y`$.
+- $\mathbb{P}[\; \theta_{9} > \theta_{7}\; ] = `r mc_theta`$, `r newline()`
+- $\mathbb{P}[\; \tilde{Y}_{9} > \tilde{Y}_{7} \;] = `r mc_y`$. `r newline()`
+
+As it is expected, the probability of the second event is slightly smaller than the first one, since it takes into account sample variability.
 
 ## Point e.
 
@@ -779,6 +795,7 @@ mean_plt %>% ggplot(aes(x=post_means, y = ybar))+
   geom_point( col = "green")+
   geom_line(col = "darkgreen", alpha = 0.5, size = 1)+
   geom_hline(yintercept = a_mu$statistics[1], col = "orange", size = 0.8)+
+  geom_text(aes(x = post_means[5], y = a_mu$statistics[1], label = paste("E[", "mu", "]"), colour = "orange"), vjust = -0.3)+
   ylab(expression(y[i])) +
   xlab(expression(paste(theta[i]))) +
   ggtitle(expression(paste("Posterior mean parameters ", theta[i], " VS sample means ", y[i])))+
@@ -792,4 +809,5 @@ total.sample.mean = sum(n*ybar)/sum(n)
 
 ```
 
-The total sample mean is `r round(total.sample.mean, 2)` and the posterior expectation of the Grand Mean is `round(a_mu$statistics[1], 2)`, which means that they only differ by `r round(abs(total.sample.mean - a_mu$statistics[1])/2 * 100, 2)`$\%$ of the former.
+The total sample mean is `r round(total.sample.mean, 2)` and the posterior expectation of the Grand Mean is `r round(a_mu$statistics[1], 2)`, which means that they only differ by `r round(abs(total.sample.mean - a_mu$statistics[1])/2 * 100, 2)`$\%$ of the former.`r newline()`
+This indicates that the data effect is strong on the Grand Mean, since it is converging to the general sample mean, even though the convergence is quite slow.
