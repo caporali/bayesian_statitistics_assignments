@@ -633,13 +633,13 @@ S_theta = effectiveSize(theta.mcmc)
 \smallskip
 As you can see, the chains span quite well and converge nicely, though not very rapidly.
 
-In fact, we can observe that the effective sample size of the parameters are: \\
-- $S_{eff}(\mu) = `r round(effectiveSize(mu.mcmc), 0)`\,$; \\
-- $S_{eff}(\sigma^2) = `r round(effectiveSize(sigma2.mcmc), 0)`\,$; \\
-- $S_{eff}(\tau^2) = `r round(effectiveSize(tau2.mcmc), 0)`\,$; \\
+In fact, we can observe that the effective sample size of the parameters are: `r newline()`
+- $S_{eff}(\mu) = `r round(effectiveSize(mu.mcmc), 0)`\,$;`r newline()`
+- $S_{eff}(\sigma^2) = `r round(effectiveSize(sigma2.mcmc), 0)`\,$; `r newline()`
+- $S_{eff}(\tau^2) = `r round(effectiveSize(tau2.mcmc), 0)`\,$; `r newline()`
 - $S_{eff}(\theta_{1:8}) = 
 	\begin{aligned} 
-		& `r paste(c("[", paste(round(matrix(effectiveSize(z), nrow = 1)[1:8], 0), collapse = ", "), "]"), collapse = "")` \\
+		& `r paste(c("[", paste(round(matrix(effectiveSize(z), nrow = 1)[1:8], 0), collapse = ", "), "]"), collapse = "")` `r newline()`
 	\end{aligned} \quad$.
 which, compared to their length = `r s - burnin`, signifies a quite slow convergence.
 
@@ -660,10 +660,10 @@ a_sigma = summary(sigma2.mcmc, quantiles= c(alpha/2, 1-alpha/2))
 \normalsize
 \smallskip
 
-The quantile-based $95\%$ posterior credible interval for $\mu, \tau^2$ and $\sigma^2$ are, respectively: \\
-- $\mu$: [`r paste( a_mu$quantiles[1], ",", a_mu$quantiles[2])`] and the posterior mean is $\bar{\mu}$ = `r round(a_mu$statistics[1], 2)` 
-- $\tau^2$: [ `r paste( a_tau$quantiles[1], ",", a_tau$quantiles[2])`] and the posterior mean is $\bar{\tau}^2$ = `r round(a_tau$statistics[1], 2)`
-- $\sigma^2$: [ `r paste( a_sigma$quantiles[1], ",", a_sigma$quantiles[2])`] and the posterior mean $\bar{\sigma}^2$ = `r round(a_sigma$statistics[1], 2)`
+The quantile-based $95\%$ posterior credible interval for $\mu, \tau^2$ and $\sigma^2$ are, respectively: `r newline()`
+- $\mu$: [`r paste( a_mu$quantiles[1], ",", a_mu$quantiles[2])`] and the posterior mean is $\bar{\mu}$ = `r round(a_mu$statistics[1], 2)` `r newline()`
+- $\tau^2$: [ `r paste( a_tau$quantiles[1], ",", a_tau$quantiles[2])`] and the posterior mean is $\bar{\tau}^2$ = `r round(a_tau$statistics[1], 2)` `r newline()`
+- $\sigma^2$: [ `r paste( a_sigma$quantiles[1], ",", a_sigma$quantiles[2])`] and the posterior mean $\bar{\sigma}^2$ = `r round(a_sigma$statistics[1], 2)``r newline()`
 
 
 \scriptsize
@@ -762,13 +762,13 @@ mc_y = sum(sample.y9 > sample.y7)/S
 ```
 \normalsize
 
-The Monte Carlo estimates of the posterior probabilities of the two events are, respectively: \\
--$\mathbb{P}[\theta_{9} > \theta_{7}] = `r mc_theta`$, \\
--$\mathbb{P}[\tilde{Y}_{9} > \tilde{Y}_{7}] = `r mc_y`$,
+The Monte Carlo estimates of the posterior probabilities of the two events are, respectively: `r newline()`
+-$\mathbb{P}[\theta_{9} > \theta_{7}] = `r mc_theta`$, `r newline()`
+-$\mathbb{P}[\tilde{Y}_{9} > \tilde{Y}_{7}] = `r mc_y`$.
 
 ## Point e.
 
-<!-- By plotting the sample averages ${\bar{y}_i}_{i = 1}^{8}$ against the posterior expectation values of the ${\theta_i}_{i = 1}^{8}$, we observe that they appear to have a linear relation. -->
+By plotting the sample averages $\bar{y}_i$ against the posterior expectation values of the $\theta_i$, we observe that they appear to have a linear relation.
 \scriptsize
 ```{r}
 library(ggrepel)
