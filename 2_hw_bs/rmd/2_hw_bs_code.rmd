@@ -403,29 +403,21 @@ The effective sample size of the parameters are
 
 \medskip
 
-Below are the autocorrelation functions of the parameters.
-
-- $\beta$ : 
+Below are the autocorrelation functions of the parameters $\beta$ and $c$:
 	\smallskip
 	\scriptsize
 ```{r, fig.align = "center", out.width = "75%"}
   color_scheme_set("green")
 	# autocorrelation function of beta
-	mcmc_acf(as.data.frame(params_mcmc), pars = "beta", lags = 50)+
+	mcmc_acf(as.data.frame(params_mcmc), pars = c("beta", "c"), lags = 50, facet_args = list(nrow = 2, labeller = label_parsed))+
 	  theme_bw()+
 	  xlab(" ")
 	  
 ```
 	\normalsize
-- $c$ : 
+	
 	\smallskip
-	\scriptsize
-```{r, fig.align = "center", out.width = "75%"}
-	# autocorrelation function of c
-	mcmc_acf(as.data.frame(params_mcmc), pars = "c", lags = 50, facet_args = list(nrow = 2, labeller = label_parsed))+
-  theme_bw()
-```
-\normalsize
+
 - $Z_{1:25}$ (taken $i = 15$ as an example, so the autocorrelation function of $Z_{15}$) : 
 	\smallskip
 	\scriptsize
@@ -549,7 +541,7 @@ for (s in 1:(burnin+S)) {
     mu.mcmc[s-burnin] = mu
     tau2.mcmc[s-burnin] = tau2
     
-    if (s > burnin + 10 & 
+    if (s > burnin + 12 & 
         effectiveSize(mu.mcmc) >= 1000 &
         effectiveSize(tau2.mcmc) >= 1000 & 
         effectiveSize(sigma2.mcmc) >= 1000 &
@@ -648,7 +640,7 @@ In fact, we can observe that the effective sample size of the parameters are: \\
 	\begin{aligned} 
 		& `r paste(c("[", paste(round(matrix(effectiveSize(z), nrow = 1)[1:8], 0), collapse = ", "), "]"), collapse = "")` \\
 	\end{aligned} \quad$.
-which, compared to their length = `r s`, signifies a quite slow convergence.
+which, compared to their length = `r s - burnin`, signifies a quite slow convergence.
 
 ## Point b.
 
