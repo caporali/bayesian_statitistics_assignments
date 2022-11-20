@@ -312,11 +312,12 @@ The full conditional distributions we found are the following
 library(coda)
 library(truncnorm)
 library(bayesplot)
+library(dplyr)
 library(ggplot2)
+library(grid)
 library(gridExtra)
 library(lattice)
-library(grid)
-library(dplyr)
+
 load(file = "divorce.RData")
 set.seed(1)
 
@@ -372,7 +373,7 @@ for (t in 2:(tmax)) {
 	# break if eff_size > 1000 (for all params)
 	if (t > burnin + 1 & (t %% 1000 == 0)) { 		
 		if (effectiveSize(c[c((burnin + 1):t)]) > 1000 &
-			# effectiveSize(beta[c((burnin + 1):t)]) > 1000 &
+			effectiveSize(beta[c((burnin + 1):t)]) > 1000 &
 			prod(effectiveSize(z[c((burnin + 1):t), ]) > 1000) == 1) 
 		{
 			c = c[c((burnin + 1):t)]
@@ -403,35 +404,31 @@ The effective sample size of the parameters are
 
 \medskip
 
-Below are the autocorrelation functions of the parameters $\beta$ and $c$:
+Below are the autocorrelation functions of the parameters:
+- $\beta$ and $c$ :
 	\smallskip
 	\scriptsize
-```{r, fig.align = "center", out.width = "75%"}
-  color_scheme_set("green")
-	# autocorrelation function of beta
-	mcmc_acf(as.data.frame(params_mcmc), pars = c("beta", "c"), lags = 50, facet_args = list(nrow = 2, labeller = label_parsed))+
-	  theme_bw()+
-	  xlab(" ")
-	  
-```
+	```{r, fig.align = "center", out.width = "75%"}
+	color_scheme_set("green")
+	# autocorrelation function of beta and c
+	mcmc_acf(as.data.frame(params_mcmc), pars = c("beta", "c"), lags = 50, facet_args = list(nrow = 2, labeller = label_parsed)) +
+		theme_bw() + xlab(" ")	  
+	```
 	\normalsize
-	
-	\smallskip
-
-- $Z_{1:25}$ (taken $i = 15$ as an example, so the autocorrelation function of $Z_{15}$) : 
+- $Z_{1:25}$ :
 	\smallskip
 	\scriptsize
-```{r, fig.align = "center", out.width = "75%"}
-	# autocorrelation function of z (i = 15 taken as an example)
-	mcmc_acf(as.data.frame(params_mcmc), pars = c(paste("V", 3:8, sep = "")), lags = 50)+
-  theme_bw()
-  mcmc_acf(as.data.frame(params_mcmc), pars = c(paste("V", 9:14, sep = "")), lags = 50)+
-  theme_bw()
-  mcmc_acf(as.data.frame(params_mcmc), pars = c(paste("V", 15:20, sep = "")), lags = 50)+
-  theme_bw()
-  mcmc_acf(as.data.frame(params_mcmc), pars = c(paste("V", 21:27, sep = "")), lags = 50)+
-  theme_bw()
-```
+	```{r, fig.align = "center", out.width = "75%"}
+	# autocorrelation function of z_1:25
+	mcmc_acf(as.data.frame(params_mcmc), pars = c(paste("V", 3:8, sep = "")), lags = 50) +
+		theme_bw()
+	mcmc_acf(as.data.frame(params_mcmc), pars = c(paste("V", 9:14, sep = "")), lags = 50) +
+		theme_bw()
+	mcmc_acf(as.data.frame(params_mcmc), pars = c(paste("V", 15:20, sep = "")), lags = 50) +
+		theme_bw()
+	mcmc_acf(as.data.frame(params_mcmc), pars = c(paste("V", 21:27, sep = "")), lags = 50) +
+		theme_bw()
+	```
 	\normalsize
 
 \medskip
