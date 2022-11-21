@@ -826,7 +826,7 @@ sample_r %>% ggplot() +
 	geom_density(aes(x = sample_r_prior, col = "prior"), fill = "red", alpha = 0.2, size = 0.7) +
 	geom_density(aes(x = sample_r_post, col = "posterior"), fill = "blue", alpha = 0.2, size = 0.7) +
 	scale_color_manual(name = "legend", values = c("prior" = "red", "posterior" = "blue"),
-	labels = c("prior distribution", "posterior distribution")) +
+	labels = c("posterior distribution", "prior distribution")) +
 	ylab(" ") +
 	xlab(" ") +
 	ggtitle("posterior density vs. prior density for R")
@@ -835,15 +835,7 @@ sample_r %>% ggplot() +
 
 \smallskip
 
-<!-- 
-	edit: 
-		1. sinceramente non saprei cosa concludere perchè non ho capito che legame c'è tra l'essere spread-out/peaked e la dipendenza di tau^2 e sigma^2.
-		2. ho capito la strategia per determinare le densità, molto carina. ma lui in classe l'aveva mai fatto?
-
-		previous answer:
-			We observe that while in the prior the values are quite spread-out, which agrees with the independency of the two parameters, the posterior distribution is quite peaked and for a finite value, closer to 0 than to 1: this shows that while not being the dominant effect, we do not have enough evidence to consider the between-school variation negligible (as it is not close enough to zero).
--->
-We observe that while in the prior the values are quite peaked around $0.25$, the posterior distribution is quite spread-out, which agrees with the independency of the two parameters: \dots.
+We observe that while in the prior the values are quite spread-out, which agrees with the independency of the two parameters, the posterior distribution is quite peaked and for a finite value, closer to 0 than to 1: this shows that while not being the dominant effect, we do not have enough evidence to consider the between-school variation negligible (as it is not close enough to zero).
 
 ## Point d.
 Compute the posterior probability that, if we were to observe a new school with school-specific parameter $\theta_9, \theta_9 > \theta_7$, as well as the posterior predictive probability that a new observation from this school would be greater than a new observation from school 7.
