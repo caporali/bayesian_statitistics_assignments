@@ -857,8 +857,8 @@ sample_y_7 =  rep(0, iterations)
 # mc
 for (i in 1:iterations){
 	sample_theta_9[i] = rnorm(1, mu[i], sqrt(tau2[i]))
-	sample_y_9[i] = rnorm(1, sample_theta_9[i], sqrt(sigma2[i] + tau2[i]))
-	sample_y_7[i] = rnorm(1, theta[i, 7], sqrt(sigma2[i]))
+	sample_y_9[i] = rnorm(1, sample_theta_9[i], sqrt(sigma2[i]))
+	sample_y_7[i] = rnorm(1, theta[i, 7], sqrt(sigma2[i] + tau2[i]))
 }
 
 mc_theta = sum(sample_theta_9 > theta[1:iterations, 7]) / iterations
@@ -868,14 +868,6 @@ mc_y = sum(sample_y_9 > sample_y_7) / iterations
 
 \smallskip
 
-<!-- 
-	edit:
-		1. di nuovo, molto carina come soluzione, e stessa domanda che ti ho fatto sopra: lui lo aveva mai fatto?
-		2. sei sicura di 
-				rnorm(1, sample_theta_9[i], sqrt(sigma2[i] + tau2[i])) ?
-			perchè secondo me ha più senso
-				rnorm(1, sample_theta_9[i], sqrt(sigma2[i]))
--->
 The Monte Carlo estimates of the posterior probabilities of the two events are, respectively:
 
 - $\prob{\theta_{9} > \theta_{7}} = `r mc_theta`\,$;
