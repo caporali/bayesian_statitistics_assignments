@@ -438,14 +438,67 @@ Below are the autocorrelation functions of the parameters:
 	```
 	\normalsize
 
-\medskip
+\smallskip
 
-<!-- 
-	edit: 
-		non so come discutere del mixing anche perchè secondo me i risultati che abbiamo sono sbagliati.
-		domani ne devo discutere con samuele e aggiusto di conseguenza
--->
-Discuss the mixing of the markov chain\dots.
+In order to discuss the mixing of the Markov Chain generated we observe the traceplots and the densities of all our parameters.
+
+- $\beta$ and $c$:
+	\smallskip
+	\scriptsize
+	```{r, fig.align = "center", out.width = "50%"}
+	theme_update(plot.title = element_text(hjust = 0.5))
+	color_scheme_set("gray")
+
+	# density and traceplot of beta 
+	beta1 <- mcmc_trace(as.data.frame(beta_mcmc)) +
+			ggtitle(expression(beta)) +
+			yaxis_title(on = FALSE)
+	beta2 <- mcmc_areas(as.data.frame(beta_mcmc), 
+				prob = 0.95, prob_outer = 1, point_est = "mean") +
+			ggtitle(expression(beta)) + yaxis_text(on = FALSE)
+	grid.arrange(beta1, beta2, nrow = 1)
+
+	# density and traceplot of c
+	c1 <- mcmc_trace(as.data.frame(c_mcmc)) +
+			ggtitle(expression(c)) +
+			yaxis_title(on = FALSE)
+	c2 <- mcmc_areas(as.data.frame(c_mcmc), 
+				prob = 0.95, prob_outer = 1, point_est = "mean") +
+			ggtitle(expression(c)) + yaxis_text(on = FALSE)
+	grid.arrange(c1, c2, nrow = 1)
+	```
+	\normalsize
+- $Z_{i}$, for $i = 1, 2, 6, 8, 14, 15$ (here denoted as $Vi$). `r newline()`
+  	These chains are rapresentative of the entire array of r.v.'s $Z_{1:25}$, indeed each of the $i$'s chosen represents an index with a different type of inizialization parameters in the \texttt{divorce} data frame: $x_i >/=/< 0$ and $y_i = 0/1$:
+	\smallskip
+	\scriptsize
+	```{r, fig.align = "center", out.width = "75%"}
+	# densities and traceplots of z_i for i = 1, 2, 6
+	z1 <- mcmc_trace(as.data.frame(z_mcmc), pars = c(paste("V", c(1, 2, 6), sep = "")), 
+				facet_args = list(nrow = 3, labeller = label_parsed)) +
+			ggtitle(expression(paste("traceplots of ", z[i], ", i = 1, 2, 6"))) +
+			scale_y_continuous(breaks = c(4, 6, 8, 10, 12, 14))
+	z2 <- mcmc_areas(as.data.frame(z_mcmc), pars = c(paste("V", c(1, 2, 6), sep = "")), 
+				prob = 0.95, prob_outer = 1, point_est = "mean") +
+			ggtitle(expression(paste("density plots of the posteriors of ", z[i])))
+	grid.arrange(z1, z2, nrow = 1)
+
+	# densities and traceplots of z_i for i = 8, 14, 15
+	z3 <- mcmc_trace(as.data.frame(z_mcmc), pars = c(paste("V", c(8, 14, 15), sep = "")), 
+				facet_args = list(nrow = 3, labeller = label_parsed)) +
+			ggtitle(expression(paste("traceplots of ", z[i], ", i = 8, 14, 15"))) +
+			scale_y_continuous(breaks = c(4, 6, 8, 10, 12, 14))
+	z4 <- mcmc_areas(as.data.frame(z_mcmc), pars = c(paste("V", c(8, 14, 15), sep = "")), 
+				prob = 0.95, prob_outer = 1, point_est = "mean") +
+			ggtitle(expression(paste("density plots of the posteriors of ", z[i])))
+	grid.arrange(z3, z4, nrow = 1)
+	```
+	\normalsize
+
+\smallskip 
+
+Observing all these traceplots we can definitely assess that our Markov chains have good properties. Indeed in none of the cases there is an over represented region, moreover all the chain appears to have a good mixing and to reach stationariety. `r newline()`
+Recalling that, in some cases, the values of the effective sample size are very small in percentage with respect to the number of iterations (e.g. $S_{eff}(c) = `r round(effectiveSize(c), 2)`$ with respect to `r t - burnin` iterations $\approx  `r round(effectiveSize(c) / (t - burnin), 2)`\%$) we can assess that the convergence is not particularly fast and so the sampler is not  very efficient.
 
 ## Point d.
 
@@ -629,7 +682,7 @@ color_scheme_set("blue")
 p1 <- mcmc_trace(as.data.frame(theta_mcmc), pars = c(paste("V", 1:4, sep = "")), 
 			facet_args = list(nrow = 4, labeller = label_parsed)) +
 		ggtitle(expression(paste("traceplots of ", theta[1:4]))) +
-		scale_y_continuous(breaks = c(4, 6, 8 ,10, 12, 14))
+		scale_y_continuous(breaks = c(4, 6, 8, 10, 12, 14))
 p2 <- mcmc_areas(as.data.frame(theta_mcmc), pars = c(paste("V", 1:4, sep = "")), 
 			prob = 0.95, prob_outer = 1, point_est = "mean") +
 		ggtitle(expression(paste("density plots of the posteriors for ", theta[1:4])))
@@ -637,9 +690,9 @@ grid.arrange(p1, p2, nrow = 1)
 p1 <- mcmc_trace(as.data.frame(theta_mcmc), pars = c(paste("V", 5:8, sep = "")), 
 			facet_args = list(nrow = 4, labeller = label_parsed)) +
 		ggtitle(expression(paste("traceplots of ", theta[5:8]))) +
-		scale_y_continuous(breaks = c(4, 6, 8 ,10, 12, 14))
+		scale_y_continuous(breaks = c(4, 6, 8, 10, 12, 14))
 p2 <- mcmc_areas(as.data.frame(theta_mcmc), pars = c(paste("V", 5:8, sep = "")), 
-			prob = 0.95, prob_outer = 1,	point_est = "mean") +
+			prob = 0.95, prob_outer = 1, point_est = "mean") +
 		ggtitle(expression(paste("density plots of the posteriors for ", theta[5:8])))
 grid.arrange(p1, p2, nrow = 1)
 
@@ -742,31 +795,27 @@ geom_vline(aes(xintercept = summary_mu$statistics[1], col = "posterior"), size =
 geom_vline(aes(xintercept = mu0, col = "prior"), size = 1) +
 xlab(expression(mu)) +
 ylab(expression(paste("p(", mu, " | ", y[i, j], ")"))) +
-scale_color_manual(name = "legend", values = c("prior" = "red", "posterior" = "blue"), 
-	labels = c("prior distribution", "posterior distribution"))
+scale_color_manual(name = "legend", values = c("prior" = "red", "posterior" = "blue"))
 
 # sigma^2
 mcmc_dens(as.data.frame(sigma2_mcmc), alpha = 0.5)+
 ggtitle(expression(paste("Posterior distribution of ", sigma^2))) +
 geom_area(data = priors, aes(x = x2, y = invg_sigma2, col = "prior"), fill = "red", alpha = 0.3, size = 0.8) +
-geom_vline(aes(xintercept = summary_sigma2$statistics[1], col = "posterior"), size = 1)+
-geom_vline(aes(xintercept = s20, col = "prior"), size = 1)+
+geom_vline(aes(xintercept = summary_sigma2$statistics[1], col = "posterior"), size = 1) +
+geom_vline(aes(xintercept = s20, col = "prior"), size = 1) +
 xlab(expression(tau^2)) +
 ylab(expression(paste("p(", sigma^2, " | ", y[i, j], ")"))) +
-scale_color_manual(name = "Legend", values = c("prior" = "red", "posterior" = "blue"), 
-	labels = c("prior distribution", "posterior distribution"))
+scale_color_manual(name = "Legend", values = c("prior" = "red", "posterior" = "blue"))
 
 # tau^2
-mcmc_dens(as.data.frame(tau2_mcmc), alpha = 0.5)+
+mcmc_dens(as.data.frame(tau2_mcmc), alpha = 0.5) +
 ggtitle(expression(paste("posterior distribution of ", tau^2))) +
 geom_area(data = priors, aes(x = x3, y = invg_tau2, col = "prior"), fill = "red", alpha = 0.3, size = 0.8) +
 geom_vline(aes(xintercept = summary_tau2$statistics[1], col = "posterior"), size = 1) +
 geom_vline(aes(xintercept = t20, col = "prior"), size = 1) +	
 xlab(expression(tau^2)) +
 ylab(expression(paste("p(", tau^2, " | ", y[i, j], ")"))) +
-scale_color_manual(name = "Legend", values = c("prior" = "red", "posterior" = "blue"), 
-	labels = c("prior distribution", "posterior distribution"))
-
+scale_color_manual(name = "Legend", values = c("prior" = "red", "posterior" = "blue"))
 ```
 \normalsize
 
@@ -825,8 +874,7 @@ sample_r = data.frame(sample_r_prior, sample_r_post)
 sample_r %>% ggplot() +	
 	geom_density(aes(x = sample_r_prior, col = "prior"), fill = "red", alpha = 0.2, size = 0.7) +
 	geom_density(aes(x = sample_r_post, col = "posterior"), fill = "blue", alpha = 0.2, size = 0.7) +
-	scale_color_manual(name = "legend", values = c("prior" = "red", "posterior" = "blue"),
-	labels = c("posterior distribution", "prior distribution")) +
+	scale_color_manual(name = "legend", values = c("prior" = "red", "posterior" = "blue")) +
 	ylab(" ") +
 	xlab(" ") +
 	ggtitle("posterior density vs. prior density for R")
