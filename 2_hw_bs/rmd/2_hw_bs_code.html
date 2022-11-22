@@ -364,11 +364,11 @@ married couples over a period of five years. One item of interest is the
 relationship between divorce rates and the various characteristics of
 the couples. For example, the researchers would like to model the
 probability of divorce as a function of age differential, recorded as
-the man’s age minus the woman’s age. The data can be found in the file .
-We will model these data with probit regression, in which a binary
-variable <span class="math inline">\(Y_i\)</span> is described in terms
-of an explanatory variable <span class="math inline">\(x_i\)</span> via
-the following latent variable model: <span class="math display">\[\begin{align*}
+the man’s age minus the woman’s age. The data can be found in the file
+<tt>divorce.RData</tt>. We will model these data with probit regression,
+in which a binary variable <span class="math inline">\(Y_i\)</span> is
+described in terms of an explanatory variable <span class="math inline">\(x_i\)</span> via the following latent variable
+model: <span class="math display">\[\begin{align*}
     Z_i &amp; = \beta x_i + \varepsilon_i \\
     Y_i &amp; = 1_{(c, +\infty)}(Z_i),
 \end{align*}\]</span> where <span class="math inline">\(\beta\)</span>
@@ -505,8 +505,8 @@ being <span class="math inline">\(\Phi(\cdot)\)</span> the cdf of the
 standard normal distribution. By definition, it holds <span class="math inline">\(\Phi\left(\frac{b - \mu}{\tau}\right) = 1\)</span>
 if <span class="math inline">\(b = \infty\)</span> and <span class="math inline">\(\Phi\left(\frac{a - \mu}{\tau}\right) = 0\)</span>
 if <span class="math inline">\(a = -\infty\)</span>.</li>
-<li>Sampling can be performed thanks to the function from the package
-[<a href="https://cran.r-project.org/web/packages/truncnorm/truncnorm.pdf" class="uri">https://cran.r-project.org/web/packages/truncnorm/truncnorm.pdf</a>].
+<li>Sampling can be performed thanks to the function <tt>rtruncnorm(n,
+a, b, mean, sd)</tt> from the package <tt>truncnorm</tt> [<a href="https://cran.r-project.org/web/packages/truncnorm/truncnorm.pdf" class="uri">https://cran.r-project.org/web/packages/truncnorm/truncnorm.pdf</a>].
 This function receives in input the number of desired samples (<span class="math inline">\(n\)</span>) and the four parameters specifying the
 distribution of <span class="math inline">\(V\)</span>: <span class="math inline">\(a, b, \mu, \tau\)</span>. Pay attention that it
 takes as last inputs the mean <span class="math inline">\(\mu\)</span>
@@ -847,7 +847,8 @@ grid.arrange(c1, c2, nrow = 1)</code></pre>
 <li><p><span class="math inline">\(Z_{i}\)</span>, for <span class="math inline">\(i = 1, 2, 6, 8, 14, 15\)</span> (here denoted as
 <span class="math inline">\(Vi\)</span>). <br> These chains are
 rapresentative of the entire array of r.v.’s <span class="math inline">\(Z_{1:25}\)</span>, indeed each of the <span class="math inline">\(i\)</span>’s chosen represents an index with a
-different type of inizialization parameters in the data frame: <span class="math inline">\(x_i &gt;/=/&lt; 0\)</span> and <span class="math inline">\(y_i = 0/1\)</span>: </p>
+different type of inizialization parameters in the <tt>divorce</tt> data
+frame: <span class="math inline">\(x_i &gt;/=/&lt; 0\)</span> and <span class="math inline">\(y_i = 0/1\)</span>: </p>
 <pre class="r"><code># densities and traceplots of z_i for i = 1, 2, 6
 z1 &lt;- mcmc_trace(as.data.frame(z_mcmc), pars = c(paste(&quot;V&quot;, c(1, 2, 6), sep = &quot;&quot;)), 
             facet_args = list(nrow = 3, labeller = label_parsed)) +
@@ -915,10 +916,10 @@ interval for <span class="math inline">\(\beta\)</span> <span class="math displa
 </div>
 <div id="question-2-hierarchical-modeling" class="section level1">
 <h1>Question 2: Hierarchical Modeling</h1>
-<p>The file gives weekly hours spent on homework for students sampled
-from eight different schools. Obtain posterior distributions for the
-true means for the eight different schools using a hierarchical normal
-model with the following prior parameters: <span class="math display">\[
+<p>The file <tt>schools.RData</tt> gives weekly hours spent on homework
+for students sampled from eight different schools. Obtain posterior
+distributions for the true means for the eight different schools using a
+hierarchical normal model with the following prior parameters: <span class="math display">\[
     \mu_{0} = 7, \gamma^2_{0} = 5, \eta_{0} = 2, \tau^2_{0} = 10,
 \nu_{0} = 2, \sigma^2_{0} = 15.
 \]</span> That is, <span class="math display">\[\begin{align*}
@@ -1127,8 +1128,9 @@ convergence.</p>
 confidence regions for <span class="math inline">\(\{\mu, \sigma^2,
 \tau^2\}\)</span>. Also, compare the posterior densities to the prior
 densities, and discuss what was learned from the data. (For the density
-of the inverse-Gamma distribution you can use the function from the
-library ).</p>
+of the inverse-Gamma distribution you can use the function
+<tt>dinvgamma(x, shape, rate)</tt> from the library
+<tt>invgamma</tt>).</p>
 <p>Let us compute posterior means and <span class="math inline">\(95\%\)</span> confidence regions for <span class="math inline">\(\{\mu, \sigma^2, \tau^2\}\)</span>.</p>
 <pre class="r"><code>alpha = 0.05
 
