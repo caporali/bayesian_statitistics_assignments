@@ -454,7 +454,7 @@ In order to discuss the mixing of the Markov Chain generated we observe the trac
 	\scriptsize
 	```{r, fig.align = "center", out.width = "50%"}
 	theme_update(plot.title = element_text(hjust = 0.5))
-	color_scheme_set("gray")
+	color_scheme_set("red")
 
 	# density and traceplot of beta 
 	beta1 <- mcmc_trace(as.data.frame(beta_mcmc)) +
